@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Сканер билетов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Spectral:wght@300;400&display=swap" rel="stylesheet">
+<!-- jsQR for camera QR decoding -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<style>
+  :root {
+    --bg:#0d0d14; --surface:#13131f; --gold:#c9a84c;
+    --green:#27ae60; --red:#c0392b; --muted:#7a7060; --text:#e8e0d0;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background:var(--bg); color:var(--text);
+    font-family:'Spectral',serif;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:1.5rem 1rem 2rem;
+  }
+  h1 {
+    font-family:'Playfair Display',serif;
+    color:var(--gold); font-size:1.6rem; margin-bottom:.3rem; text-align:center;
+  }
+  .sub { color:var(--muted); font-size:.85rem; text-align:center; margin-bottom:1.5rem; font-style:italic; }
+
+  /* Camera */
+  .cam-wrap {
+    position:relative; width:100%; max-width:360px;
+    border-radius:12px; overflow:hidden;
+    border:2px solid #2a2a3a;
+    background:#000;
+    margin-bottom:1.2rem;
+  }
+  video { width:100%; display:block; }
+  canvas { display:none; }
+
+  /* Scan overlay */
+  .scan-overlay {
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+  .scan-box {
+    position:absolute;
+    top:50%; left:50%; transform:translate(-50%,-52%);
+    width:200px; height:200px;
+    border:2px solid rgba(201,168,76,.7);
+    border-radius:8px;
+    box-shadow:0 0 0 3000px rgba(0,0,0,.45);
+  }
+  .scan-line {
+    position:absolute; top:0; left:0; right:0;
+    height:2px; background:var(--gold);
+    animation:scanLine 2s ease-in-out infinite;
+    box-shadow:0 0 8px var(--gold);
+  }
+  @keyframes scanLine {
+    0%  { top:0;   }
+    50% { top:calc(100% - 2px); }
+    100%{ top:0;   }
+  }
+
+  /* Corners */
+  .scan-box::before, .scan-box::after,
+  .corner-br, .corner-bl {
+    content:''; position:absolute; width:18px; height:18px;
+    border-color:var(--gold); border-style:solid;
+  }
+  .scan-box::before { top:-2px; left:-2px; border-width:3px 0 0 3px; border-radius:6px 0 0 0; }
+  .scan-box::after  { top:-2px; right:-2px; border-width:3px 3px 0 0; border-radius:0 6px 0 0; }
+  .corner-br { bottom:-2px; right:-2px; border-width:0 3px 3px 0; border-radius:0 0 6px 0; }
+  .corner-bl { bottom:-2px; left:-2px;  border-width:0 0 3px 3px; border-radius:0 0 0 6px; }
+
+  /* Status */
+  .status {
+    width:100%; max-width:360px;
+    border-radius:10px;
+    padding:1.2rem 1.4rem;
+    margin-bottom:1rem;
+    transition:all .3s;
+    display:none;
+  }
+  .status.show { display:block; }
+  .status.ok   { background:#0e2e1a; border:1px solid #27ae60; }
+  .status.err  { background:#2e0e0e; border:1px solid #c0392b; }
+  .status.warn { background:#2e280a; border:1px solid #c9a84c; }
+  .status-icon { font-size:2rem; margin-bottom:.5rem; text-align:center; }
+  .status h3 { font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:.4rem; text-align:center; }
+  .status.ok   h3 { color:#2ecc71; }
+  .status.err  h3 { color:#e74c3c; }
+  .status.warn h3 { color:var(--gold); }
+  .status p { font-size:.88rem; color:var(--muted); line-height:1.6; text-align:center; }
+  .status p strong { color:var(--text); }
+
+  /* Manual input */
+  .manual-section {
+    width:100%; max-width:360px; margin-top:auto; padding-top:1.5rem;
+    border-top:1px solid #1f1f2e;
+  }
+  .manual-section label {
+    font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em;
+    display:block; margin-bottom:.5rem;
+  }
+  .manual-row { display:flex; gap:.5rem; }
+  .manual-row input {
+    flex:1; background:#0d0d14; border:1px solid #2e2e45;
+    border-radius:5px; padding:.6rem .8rem; color:var(--text);
+    font-family:'Spectral',serif; font-size:.9rem; outline:none;
+  }
+  .manual-row input:focus { border-color:var(--gold-dim,#8a6f30); }
+  .manual-row button {
+    background:linear-gradient(135deg,#c9a84c,#8a6f30);
+    border:none; border-radius:5px; padding:.6rem 1rem;
+    color:#0d0d14; font-weight:700; cursor:pointer;
+    font-family:'Playfair Display',serif; font-size:.9rem;
+  }
+
+  .cam-btn {
+    margin-bottom:1rem;
+    background:transparent;
+    border:1px solid var(--gold-dim,#8a6f30);
+    border-radius:5px;
+    padding:.6rem 1.4rem;
+    color:var(--gold);
+    font-family:'Playfair Display',serif;
+    cursor:pointer;
+    font-size:.95rem;
+  }
+</style>
+</head>
+<body>
+<h1>Сканер билетов</h1>
+<p class="sub">Для администраторов зала</p>
+
+<button class="cam-btn" id="btnCam" onclick="startCamera()">📷 Включить камеру</button>
+
+<div class="cam-wrap" id="camWrap" style="display:none">
+  <video id="video" autoplay playsinline muted></video>
+  <canvas id="canvas"></canvas>
+  <div class="scan-overlay">
+    <div class="scan-box">
+      <div class="scan-line"></div>
+      <div class="corner-br"></div>
+      <div class="corner-bl"></div>
+    </div>
+  </div>
+</div>
+
+<div class="status" id="statusBox">
+  <div class="status-icon" id="statusIcon"></div>
+  <h3 id="statusTitle"></h3>
+  <p id="statusBody"></p>
+</div>
+
+<div class="manual-section">
+  <label>Или введите ID билета вручную</label>
+  <div class="manual-row">
+    <input type="text" id="manualId" placeholder="ticket UUID...">
+    <button onclick="manualScan()">Проверить</button>
+  </div>
+</div>
+
+<script>
+let scanning = false;
+let lastScanned = '';
+let cooldown = false;
+
+async function startCamera() {
+  document.getElementById('btnCam').style.display = 'none';
+  const wrap = document.getElementById('camWrap');
+  wrap.style.display = 'block';
+
+  const video = document.getElementById('video');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width:{ideal:640}, height:{ideal:480} }
+    });
+    video.srcObject = stream;
+    video.play();
+    scanning = true;
+    requestAnimationFrame(tick);
+  } catch(e) {
+    wrap.style.display = 'none';
+    document.getElementById('btnCam').style.display = '';
+    showStatus('err', '📵', 'Нет доступа к камере', 'Разрешите доступ к камере в настройках браузера, или используйте ручной ввод ниже.');
+  }
+}
+
+function tick() {
+  if (!scanning) return;
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+    requestAnimationFrame(tick);
+    return;
+  }
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const code = jsQR(imgData.data, imgData.width, imgData.height, {inversionAttempts:'dontInvert'});
+
+  if (code && code.data && code.data !== lastScanned && !cooldown) {
+    lastScanned = code.data;
+    cooldown = true;
+    processTicketId(code.data);
+    setTimeout(() => { cooldown = false; lastScanned = ''; }, 4000);
+  }
+  requestAnimationFrame(tick);
+}
+
+async function processTicketId(id) {
+  id = id.trim();
+  if (!id) return;
+  try {
+    const resp = await fetch('/api/scan', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ticket_id: id})
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      showStatus('ok', '✅', 'Вход разрешён',
+        `<strong>${data.guest_name}</strong><br>${data.section} · ряд ${data.row_num} · место ${data.seat_num}`);
+    } else if (resp.status === 410) {
+      showStatus('warn', '⚠️', 'Билет уже использован', data.detail);
+    } else if (resp.status === 404) {
+      showStatus('err', '❌', 'Билет не найден', 'Такой билет не существует в системе.');
+    } else {
+      showStatus('err', '❌', 'Ошибка', data.detail || 'Неизвестная ошибка');
+    }
+  } catch(e) {
+    showStatus('err', '❌', 'Нет связи', 'Проверьте подключение к сети.');
+  }
+}
+
+function showStatus(type, icon, title, body) {
+  const box = document.getElementById('statusBox');
+  box.className = 'status show ' + type;
+  document.getElementById('statusIcon').textContent  = icon;
+  document.getElementById('statusTitle').textContent = title;
+  document.getElementById('statusBody').innerHTML    = body;
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function manualScan() {
+  const id = document.getElementById('manualId').value.trim();
+  if (!id) return;
+  processTicketId(id);
+  document.getElementById('manualId').value = '';
+}
+
+document.getElementById('manualId').addEventListener('keydown', e => {
+  if (e.key === 'Enter') manualScan();
+});
+</script>
+</body>
+</html>
