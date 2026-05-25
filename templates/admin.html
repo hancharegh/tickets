@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Администратор — Схема зала</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Spectral:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0d0d14;--surface:#13131f;--gold:#c9a84c;--gold-dim:#8a6f30;--text:#e8e0d0;--muted:#7a7060;--green:#27ae60;--red:#c0392b;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Spectral',serif;min-height:100vh;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;border-bottom:1px solid #2a2a3a;flex-wrap:wrap;gap:1rem;}
+  header h1{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--gold);}
+  .stats{display:flex;gap:1.5rem;flex-wrap:wrap;}
+  .stat{text-align:center;}
+  .stat-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--gold);}
+  .stat-lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .btn-refresh{background:transparent;border:1px solid var(--gold-dim);border-radius:5px;padding:.45rem 1rem;color:var(--gold);font-family:'Spectral',serif;font-size:.85rem;cursor:pointer;}
+  .btn-refresh:hover{background:rgba(201,168,76,.08);}
+
+  /* легенда */
+  .legend{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;justify-content:center;padding:.8rem 1rem;border-bottom:1px solid #1f1f2e;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+  .legend-item{display:flex;align-items:center;gap:.35rem;}
+  .ld{width:12px;height:11px;border-radius:2px;}
+  .ld-f{background:#2a2a3e;border:1px solid #4a4a6e;}
+  .ld-t{background:#3d1515;border:1px solid #8b2020;}
+  .ld-u{background:#1a2e1a;border:1px solid #2a4a2a;}
+
+  /* зал */
+  .hall-outer{overflow-x:auto;padding:1rem 1rem .5rem;display:flex;justify-content:center;}
+  .hall-wrap{display:inline-flex;flex-direction:column;align-items:center;gap:0;}
+  .hall-rows{display:flex;align-items:flex-end;gap:8px;}
+  .lozha{display:flex;flex-direction:column;gap:2px;align-items:center;}
+  .lozha-title{font-size:.58rem;color:var(--gold-dim);letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px;white-space:nowrap;}
+  .lozha-row{display:flex;gap:2px;}
+  .parterre{display:flex;flex-direction:column;gap:2px;}
+  .p-row{display:flex;align-items:center;gap:1px;}
+  .rl{font-size:.52rem;color:var(--muted);width:28px;text-align:right;padding-right:3px;flex-shrink:0;}
+  .rl-r{font-size:.52rem;color:var(--muted);width:28px;text-align:left;padding-left:3px;flex-shrink:0;}
+  .aisle{width:10px;flex-shrink:0;}
+  .aisle-sm{width:5px;flex-shrink:0;}
+  .stage{margin-top:4px;width:min(400px,65%);height:28px;background:linear-gradient(180deg,#3a2e10,#1e1808);border:1px solid var(--gold-dim);border-radius:0 0 6px 6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.72rem;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;}
+
+  /* кресло */
+  .seat{width:15px;height:13px;border-radius:3px 3px 2px 2px;border:1px solid #4a4a6e;background:#2a2a3e;flex-shrink:0;cursor:pointer;transition:transform .1s,box-shadow .1s;position:relative;}
+  .seat:hover{transform:scaleY(1.15);z-index:2;box-shadow:0 0 6px rgba(201,168,76,.4);}
+  .seat.taken{background:#3d1515;border-color:#8b2020;}
+  .seat.used{background:#1a2e1a;border-color:#2a4a2a;opacity:.7;}
+
+  /* tooltip */
+  .seat[data-tip]:hover::after{
+    content:attr(data-tip);
+    position:absolute;
+    bottom:calc(100% + 5px);
+    left:50%;
+    transform:translateX(-50%);
+    background:#1a1a2e;
+    border:1px solid #2e2e45;
+    border-radius:5px;
+    padding:.35rem .6rem;
+    font-size:.72rem;
+    color:var(--text);
+    white-space:nowrap;
+    z-index:100;
+    pointer-events:none;
+    font-family:'Spectral',serif;
+  }
+
+  /* таблица */
+  .table-section{padding:1.5rem 1.5rem 2rem;}
+  .table-section h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold);margin-bottom:1rem;}
+  .search-bar{display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;}
+  .search-bar input{flex:1;min-width:200px;background:#0d0d14;border:1px solid #2e2e45;border-radius:5px;padding:.5rem .8rem;color:var(--text);font-family:'Spectral',serif;font-size:.9rem;outline:none;}
+  .search-bar input:focus{border-color:var(--gold-dim);}
+  .filter-btns{display:flex;gap:.4rem;}
+  .fbtn{background:transparent;border:1px solid #2e2e45;border-radius:5px;padding:.45rem .8rem;color:var(--muted);font-size:.8rem;cursor:pointer;transition:all .15s;}
+  .fbtn.active{border-color:var(--gold-dim);color:var(--gold);}
+
+  .tbl-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:.83rem;}
+  th{background:#0d0d14;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-size:.7rem;padding:.6rem .8rem;text-align:left;border-bottom:1px solid #2a2a3a;white-space:nowrap;}
+  td{padding:.55rem .8rem;border-bottom:1px solid #1a1a2a;vertical-align:middle;}
+  tr:hover td{background:rgba(255,255,255,.02);}
+  .badge{display:inline-block;padding:.2rem .55rem;border-radius:20px;font-size:.72rem;font-weight:600;}
+  .badge-active{background:#0e2e1a;color:#2ecc71;border:1px solid #27ae60;}
+  .badge-used{background:#1a1a2a;color:var(--muted);border:1px solid #2a2a3a;}
+  .btn-qr{background:transparent;border:1px solid var(--gold-dim);border-radius:4px;padding:.25rem .6rem;color:var(--gold);font-size:.75rem;cursor:pointer;}
+  .btn-qr:hover{background:rgba(201,168,76,.1);}
+  .btn-cancel-ticket{background:transparent;border:1px solid #5a1010;border-radius:4px;padding:.25rem .6rem;color:#e74c3c;font-size:.75rem;cursor:pointer;}
+  .btn-cancel-ticket:hover{background:rgba(192,57,43,.1);}
+
+  /* QR модалка */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
+  .modal-bg.open{display:flex;}
+  .modal{background:var(--surface);border:1px solid #2e2e45;border-radius:10px;padding:1.8rem;width:100%;max-width:350px;position:relative;text-align:center;animation:slideUp .22s ease;}
+  @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal-close{position:absolute;top:.7rem;right:.8rem;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;}
+  .modal h3{font-family:'Playfair Display',serif;color:var(--gold);margin-bottom:.3rem;}
+  .modal p{color:var(--muted);font-size:.83rem;margin-bottom:1rem;}
+  .modal img{width:180px;height:180px;border-radius:8px;border:3px solid var(--gold-dim);display:block;margin:0 auto .9rem;}
+  .modal .ticket-detail{background:#0d0d14;border-radius:6px;padding:.65rem .9rem;font-size:.83rem;color:var(--muted);line-height:1.7;text-align:left;}
+  .modal .ticket-detail strong{color:var(--text);}
+
+  .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(201,168,76,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading{text-align:center;padding:3rem;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Панель администратора</h1>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Всего мест</div></div>
+    <div class="stat"><div class="stat-val" id="statBooked">—</div><div class="stat-lbl">Занято</div></div>
+    <div class="stat"><div class="stat-val" id="statUsed">—</div><div class="stat-lbl">Использовано</div></div>
+    <div class="stat"><div class="stat-val" id="statFree">—</div><div class="stat-lbl">Свободно</div></div>
+  </div>
+  <button class="btn-refresh" onclick="loadAll()">↻ Обновить</button>
+</header>
+
+<div class="legend">
+  <span class="legend-item"><span class="ld ld-f"></span>Свободно</span>
+  <span class="legend-item"><span class="ld ld-t"></span>Забронировано</span>
+  <span class="legend-item"><span class="ld ld-u"></span>Использован</span>
+</div>
+
+<div class="hall-outer">
+  <div class="hall-wrap">
+    <div class="hall-rows" id="hallAdmin"></div>
+    <div class="stage">Сцена</div>
+  </div>
+</div>
+
+<div class="table-section">
+  <h2>Все билеты</h2>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Поиск по имени, email, месту…" oninput="renderTable()">
+    <div class="filter-btns">
+      <button class="fbtn active" data-filter="all" onclick="setFilter('all',this)">Все</button>
+      <button class="fbtn" data-filter="active" onclick="setFilter('active',this)">Активные</button>
+      <button class="fbtn" data-filter="used" onclick="setFilter('used',this)">Использованные</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Гость</th>
+          <th>Email</th>
+          <th>Секция</th>
+          <th>Ряд</th>
+          <th>Место</th>
+          <th>Статус</th>
+          <th>Дата</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- QR модалка -->
+<div class="modal-bg" id="modalQR">
+  <div class="modal">
+    <button class="modal-close" onclick="closeQR()">✕</button>
+    <h3>QR-код билета</h3>
+    <p id="qrModalSub"></p>
+    <img id="qrModalImg" src="" alt="QR">
+    <div class="ticket-detail" id="qrModalInfo"></div>
+  </div>
+</div>
+
+<script>
+const ROWS = [
+  {r:1,  seats:22,aisleAfter:11,sm:false},{r:2,  seats:22,aisleAfter:11,sm:false},
+  {r:3,  seats:22,aisleAfter:11,sm:false},{r:4,  seats:22,aisleAfter:11,sm:false},
+  {r:5,  seats:22,aisleAfter:11,sm:false},{r:6,  seats:24,aisleAfter:12,sm:false},
+  {r:7,  seats:24,aisleAfter:12,sm:false},{r:8,  seats:24,aisleAfter:12,sm:false},
+  {r:9,  seats:24,aisleAfter:12,sm:false},{r:10, seats:24,aisleAfter:12,sm:false},
+  {r:11, seats:24,aisleAfter:12,sm:false},{r:12, seats:24,aisleAfter:12,sm:false},
+  {r:13, seats:24,aisleAfter:12,sm:false},{r:14, seats:24,aisleAfter:12,sm:false},
+  {r:15, seats:24,aisleAfter:12,sm:true}, {r:16, seats:24,aisleAfter:12,sm:true},
+  {r:17, seats:24,aisleAfter:12,sm:true}, {r:18, seats:24,aisleAfter:12,sm:true},
+  {r:19, seats:24,aisleAfter:12,sm:true}, {r:20, seats:22,aisleAfter:11,sm:false},
+];
+
+let allTickets = [];
+let bookedMap  = {};
+let currentFilter = 'all';
+
+async function loadAll() {
+  const [seatsResp, ticketsResp] = await Promise.all([
+    fetch('/api/seats'),
+    fetch('/api/admin/tickets'),
+  ]);
+  const seatsData   = await seatsResp.json();
+  allTickets        = await ticketsResp.json();
+
+  bookedMap = {};
+  seatsData.booked.forEach(b => { bookedMap[b.seat_id] = b; });
+
+  const totalSeats = ROWS.reduce((s,r)=>s+r.seats,0) + 16; // +8 ложа А +8 ложа Б
+  const booked = allTickets.length;
+  const used   = allTickets.filter(t=>t.used).length;
+
+  document.getElementById('statTotal').textContent  = 506;
+  document.getElementById('statBooked').textContent = booked;
+  document.getElementById('statUsed').textContent   = used;
+  document.getElementById('statFree').textContent   = 506 - booked;
+
+  buildHall();
+  renderTable();
+}
+
+function buildHall() {
+  const hall = document.getElementById('hallAdmin');
+  hall.innerHTML = '';
+  hall.appendChild(buildLozha('Ложа_Б','Ложа Б'));
+  const pt = document.createElement('div');
+  pt.className = 'parterre';
+  for (let i = ROWS.length-1; i>=0; i--) pt.appendChild(buildRow(ROWS[i]));
+  hall.appendChild(pt);
+  hall.appendChild(buildLozha('Ложа_А','Ложа А'));
+}
+
+function buildLozha(section, label) {
+  const col = document.createElement('div');
+  col.className = 'lozha';
+  const t = document.createElement('div');
+  t.className = 'lozha-title';
+  t.textContent = label;
+  col.appendChild(t);
+  for (let row=2; row>=1; row--) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'lozha-row';
+    for (let s=1; s<=4; s++) {
+      const seatNum = (row-1)*4+s;
+      rowEl.appendChild(makeSeat(section, row, seatNum));
+    }
+    col.appendChild(rowEl);
+  }
+  return col;
+}
+
+function buildRow(cfg) {
+  const rowEl = document.createElement('div');
+  rowEl.className = 'p-row';
+  const lbl = document.createElement('span');
+  lbl.className='rl'; lbl.textContent=cfg.r;
+  rowEl.appendChild(lbl);
+  for (let s=1; s<=cfg.seats; s++) {
+    if (s===cfg.aisleAfter+1) {
+      const a=document.createElement('div');
+      a.className=cfg.sm?'aisle-sm':'aisle';
+      rowEl.appendChild(a);
+    }
+    rowEl.appendChild(makeSeat('Партер',cfg.r,s));
+  }
+  const lblR=document.createElement('span');
+  lblR.className='rl-r'; lblR.textContent=cfg.r;
+  rowEl.appendChild(lblR);
+  return rowEl;
+}
+
+function makeSeat(section, row, seat) {
+  const seatId = `${section}_r${row}_s${seat}`;
+  const el = document.createElement('div');
+  el.className = 'seat';
+  const b = bookedMap[seatId];
+  if (b) {
+    el.classList.add(b.used ? 'used' : 'taken');
+    el.dataset.tip = `${b.guest_name}${b.email?' · '+b.email:''}\n${section.replace(/_/g,' ')} р.${row} м.${seat}`;
+    // Find ticket for QR button on click
+    el.onclick = () => showQRById(seatId);
+  }
+  return el;
+}
+
+function showQRById(seatId) {
+  const ticket = allTickets.find(t => t.seat_id === seatId);
+  if (!ticket) return;
+  if (ticket.used) return;
+  showQRModal(ticket);
+}
+
+async function showQRModal(ticket) {
+  document.getElementById('modalQR').classList.add('open');
+  document.getElementById('qrModalImg').src = '';
+  document.getElementById('qrModalSub').textContent = 'Загрузка…';
+  document.getElementById('qrModalInfo').innerHTML = '';
+
+  // Generate QR by re-fetching
+  try {
+    const resp = await fetch('/api/restore-qr', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email: ticket.email || '__admin_lookup__' + ticket.ticket_id})
+    });
+    // Fallback: use ticket_id directly for QR generation via dedicated endpoint
+    const qrResp = await fetch('/api/ticket-qr/' + ticket.ticket_id);
+    const data = await qrResp.json();
+    document.getElementById('qrModalImg').src = 'data:image/png;base64,' + data.qr_base64;
+    document.getElementById('qrModalSub').textContent = ticket.guest_name;
+    document.getElementById('qrModalInfo').innerHTML =
+      `<strong>${ticket.guest_name}</strong><br>` +
+      `${ticket.section} · ряд ${ticket.row_num} · место ${ticket.seat_num}<br>` +
+      `<small style="font-size:.7rem;opacity:.5;">${ticket.ticket_id}</small>`;
+  } catch(e) {
+    document.getElementById('qrModalSub').textContent = 'Ошибка загрузки QR';
+  }
+}
+
+function closeQR() { document.getElementById('modalQR').classList.remove('open'); }
+
+// ── Таблица ──────────────────────────────────────────────────────────────
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let list = allTickets;
+
+  if (currentFilter === 'active') list = list.filter(t=>!t.used);
+  if (currentFilter === 'used')   list = list.filter(t=>t.used);
+
+  if (q) list = list.filter(t =>
+    t.guest_name.toLowerCase().includes(q) ||
+    (t.email||'').toLowerCase().includes(q) ||
+    t.section.toLowerCase().includes(q) ||
+    String(t.row_num).includes(q) ||
+    String(t.seat_num).includes(q)
+  );
+
+  const tbody = document.getElementById('tableBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">Билеты не найдены</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = list.map(t => `
+    <tr>
+      <td><strong>${t.guest_name}</strong></td>
+      <td style="color:var(--muted);font-size:.8rem;">${t.email||'—'}</td>
+      <td>${t.section}</td>
+      <td>${t.row_num}</td>
+      <td>${t.seat_num}</td>
+      <td><span class="badge ${t.used?'badge-used':'badge-active'}">${t.used?'Использован':'Активен'}</span></td>
+      <td style="color:var(--muted);font-size:.78rem;">${formatDate(t.created_at)}</td>
+      <td style="display:flex;gap:.4rem;flex-wrap:wrap;">
+        ${!t.used ? `<button class="btn-qr" onclick="showQRForTicket('${t.ticket_id}')">QR</button>
+        <button class="btn-cancel-ticket" onclick="cancelFromAdmin('${t.ticket_id}')">Вернуть</button>` : '—'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function showQRForTicket(ticketId) {
+  document.getElementById('modalQR').classList.add('open');
+  document.getElementById('qrModalImg').src = '';
+  document.getElementById('qrModalSub').textContent = 'Загрузка…';
+  document.getElementById('qrModalInfo').innerHTML = '';
+  try {
+    const resp = await fetch('/api/ticket-qr/' + ticketId);
+    const data = await resp.json();
+    const t = allTickets.find(x=>x.ticket_id===ticketId);
+    document.getElementById('qrModalImg').src = 'data:image/png;base64,' + data.qr_base64;
+    document.getElementById('qrModalSub').textContent = t ? t.guest_name : '';
+    document.getElementById('qrModalInfo').innerHTML = t ?
+      `<strong>${t.guest_name}</strong><br>${t.section} · ряд ${t.row_num} · место ${t.seat_num}<br>` +
+      `<small style="font-size:.7rem;opacity:.5;">${ticketId}</small>` : '';
+  } catch(e) {
+    document.getElementById('qrModalSub').textContent = 'Ошибка';
+  }
+}
+
+async function cancelFromAdmin(ticketId) {
+  if (!confirm('Вернуть билет? Место станет свободным.')) return;
+  try {
+    const resp = await fetch('/api/cancel/' + ticketId, {method:'DELETE'});
+    const data = await resp.json();
+    if (resp.ok) { alert('✅ ' + data.message); loadAll(); }
+    else alert('❌ ' + data.detail);
+  } catch(e) { alert('Ошибка сети'); }
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+loadAll();
+setInterval(loadAll, 20000);
+</script>
+</body>
+</html>
