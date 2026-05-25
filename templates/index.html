@@ -7,61 +7,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:#0d0d14; --surface:#13131f; --gold:#c9a84c; --gold-dim:#8a6f30;
-    --text:#e8e0d0; --muted:#7a7060;
-    --sf:#2a2a3e; --sfb:#4a4a6e;
-    --st:#3d1515; --stb:#8b2020;
-    --su:#1a2e1a; --sub:#2a4a2a;
-    --sh:#3d3520; --ss:#5c4a10; --ssb:#c9a84c;
-    --seat-h: 14px;
-    --seat-w: 16px;
-    --row-gap: 2px;
-  }
+  :root{--bg:#0d0d14;--surface:#13131f;--gold:#c9a84c;--gold-dim:#8a6f30;--text:#e8e0d0;--muted:#7a7060;--sf:#2a2a3e;--sfb:#4a4a6e;--st:#3d1515;--stb:#8b2020;--su:#1a2e1a;--sub:#2a4a2a;--sh:#3d3520;--ss:#5c4a10;--ssb:#c9a84c;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Spectral',serif;min-height:100vh;}
-
   header{text-align:center;padding:2rem 1rem 1.2rem;border-bottom:1px solid #2a2a3a;position:relative;}
   header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,#1e1830,transparent 70%);pointer-events:none;}
   header h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,2.6rem);font-weight:900;color:var(--gold);text-shadow:0 0 40px rgba(201,168,76,.3);}
   header p{margin-top:.4rem;color:var(--muted);font-style:italic;font-size:.9rem;letter-spacing:.06em;}
-
   .legend{display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;justify-content:center;padding:1rem;border-bottom:1px solid #1f1f2e;font-size:.78rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
   .legend-item{display:flex;align-items:center;gap:.4rem;}
   .ld{width:13px;height:12px;border-radius:2px;}
   .ld-f{background:var(--sf);border:1px solid var(--sfb);}
   .ld-t{background:var(--st);border:1px solid var(--stb);}
   .ld-s{background:var(--ss);border:1px solid var(--ssb);}
-
-  /* внешний скролл */
   .hall-outer{overflow-x:auto;padding:1.5rem 1rem 1rem;display:flex;justify-content:center;}
-
-  /* обёртка всего зала */
-  .hall-wrap{display:inline-flex;flex-direction:column;align-items:center;gap:0;}
-
-  /* строки зала — партер + боковые ложи */
+  .hall-wrap{display:inline-flex;flex-direction:column;align-items:center;}
   .hall-rows{display:flex;align-items:flex-end;gap:8px;}
-
-  /* боковая колонка (ложа) */
-  .side-col{display:flex;flex-direction:column;justify-content:flex-end;gap:var(--row-gap);align-items:center;}
-  .side-label{font-size:.62rem;color:var(--gold-dim);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;white-space:nowrap;}
-
-  /* ряды лож */
+  .lozha{display:flex;flex-direction:column;gap:2px;align-items:center;}
+  .lozha-title{font-size:.6rem;color:var(--gold-dim);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;white-space:nowrap;}
   .lozha-row{display:flex;gap:2px;}
-
-  /* партер */
-  .parterre{display:flex;flex-direction:column;gap:var(--row-gap);}
+  .parterre{display:flex;flex-direction:column;gap:2px;}
   .p-row{display:flex;align-items:center;gap:1px;}
   .rl{font-size:.55rem;color:var(--muted);width:30px;text-align:right;padding-right:4px;flex-shrink:0;font-variant-numeric:tabular-nums;}
   .rl-r{font-size:.55rem;color:var(--muted);width:30px;text-align:left;padding-left:4px;flex-shrink:0;}
   .aisle{width:10px;flex-shrink:0;}
   .aisle-sm{width:5px;flex-shrink:0;}
-
-  /* сцена */
-  .stage{margin-top:4px;width:min(420px,70%);height:30px;background:linear-gradient(180deg,#3a2e10,#1e1808);border:1px solid var(--gold-dim);border-radius:0 0 6px 6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.75rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;box-shadow:0 4px 20px rgba(201,168,76,.1);}
-
-  /* кресло */
-  .seat{width:var(--seat-w);height:var(--seat-h);border-radius:3px 3px 2px 2px;border:1px solid var(--sfb);background:var(--sf);cursor:pointer;flex-shrink:0;transition:transform .1s,background .12s,border-color .12s,box-shadow .12s;position:relative;}
+  .stage{margin-top:4px;width:min(420px,70%);height:30px;background:linear-gradient(180deg,#3a2e10,#1e1808);border:1px solid var(--gold-dim);border-radius:0 0 6px 6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.75rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;}
+  .seat{width:16px;height:14px;border-radius:3px 3px 2px 2px;border:1px solid var(--sfb);background:var(--sf);cursor:pointer;flex-shrink:0;transition:transform .1s,background .12s,border-color .12s,box-shadow .12s;position:relative;}
   .seat::after{content:'';position:absolute;top:0;left:10%;right:10%;height:3px;background:rgba(255,255,255,.06);border-radius:2px 2px 0 0;}
   .seat:hover{background:var(--sh);border-color:var(--gold-dim);transform:scaleY(1.1);z-index:2;box-shadow:0 0 5px rgba(201,168,76,.2);}
   .seat.taken{background:var(--st);border-color:var(--stb);cursor:not-allowed;}
@@ -69,44 +41,47 @@
   .seat.used{background:var(--su);border-color:var(--sub);cursor:not-allowed;opacity:.55;}
   .seat.used:hover{transform:none;box-shadow:none;}
   .seat.selected{background:var(--ss);border-color:var(--ssb);box-shadow:0 0 8px rgba(201,168,76,.5);transform:scaleY(1.15);z-index:3;}
-
-  /* нижняя панель */
-  .info-bar{position:sticky;bottom:0;background:var(--surface);border-top:1px solid #2a2a3a;padding:.9rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;z-index:100;box-shadow:0 -6px 28px rgba(0,0,0,.5);}
+  .info-bar{position:sticky;bottom:0;background:var(--surface);border-top:1px solid #2a2a3a;padding:.9rem 1.5rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;z-index:100;box-shadow:0 -6px 28px rgba(0,0,0,.5);}
   .sel-info{flex:1;font-size:.88rem;color:var(--muted);}
   .sel-info strong{color:var(--gold);font-style:italic;}
-  .btn-book{background:linear-gradient(135deg,#c9a84c,#8a6f30);color:#0d0d14;border:none;border-radius:5px;padding:.65rem 1.8rem;font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s,transform .1s;}
+  .btn-book{background:linear-gradient(135deg,#c9a84c,#8a6f30);color:#0d0d14;border:none;border-radius:5px;padding:.65rem 1.6rem;font-family:'Playfair Display',serif;font-size:.92rem;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s,transform .1s;}
   .btn-book:hover:not(:disabled){opacity:.85;transform:scale(1.02);}
   .btn-book:disabled{opacity:.3;cursor:not-allowed;}
-  .btn-return{background:transparent;color:var(--muted);border:1px solid #2e2e45;border-radius:5px;padding:.65rem 1.2rem;font-family:'Playfair Display',serif;font-size:.9rem;cursor:pointer;transition:border-color .2s,color .2s;}
-  .btn-return:hover{border-color:var(--gold-dim);color:var(--gold);}
-
-  /* модалки */
+  .btn-secondary{background:transparent;color:var(--muted);border:1px solid #2e2e45;border-radius:5px;padding:.65rem 1.1rem;font-family:'Playfair Display',serif;font-size:.88rem;cursor:pointer;transition:border-color .2s,color .2s;white-space:nowrap;}
+  .btn-secondary:hover{border-color:var(--gold-dim);color:var(--gold);}
+  .btn-danger{background:transparent;color:#c0392b;border:1px solid #5a1010;border-radius:5px;padding:.65rem 1.1rem;font-family:'Playfair Display',serif;font-size:.88rem;cursor:pointer;transition:border-color .2s,background .2s;white-space:nowrap;}
+  .btn-danger:hover{border-color:#c0392b;background:rgba(192,57,43,.08);}
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
   .modal-bg.open{display:flex;}
   .modal{background:var(--surface);border:1px solid #2e2e45;border-radius:10px;padding:1.8rem;width:100%;max-width:390px;position:relative;box-shadow:0 0 60px rgba(0,0,0,.6);animation:slideUp .22s ease;}
   @keyframes slideUp{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
   .modal h2{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--gold);margin-bottom:1.1rem;}
-  .seat-summary{background:#0d0d14;border-radius:6px;padding:.7rem 1rem;margin-bottom:1.1rem;font-size:.86rem;color:var(--muted);line-height:1.7;}
+  .seat-summary{background:#0d0d14;border-radius:6px;padding:.7rem 1rem;margin-bottom:1rem;font-size:.86rem;color:var(--muted);line-height:1.7;}
   .seat-summary strong{color:var(--text);}
-  .modal label{display:block;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;}
-  .modal input[type=text]{width:100%;background:#0d0d14;border:1px solid #2e2e45;border-radius:5px;padding:.6rem .85rem;color:var(--text);font-family:'Spectral',serif;font-size:.95rem;outline:none;transition:border-color .2s;}
+  .modal label{display:block;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;margin-top:.9rem;}
+  .modal label:first-of-type{margin-top:0;}
+  .modal input[type=text], .modal input[type=email]{width:100%;background:#0d0d14;border:1px solid #2e2e45;border-radius:5px;padding:.6rem .85rem;color:var(--text);font-family:'Spectral',serif;font-size:.95rem;outline:none;transition:border-color .2s;}
   .modal input:focus{border-color:var(--gold-dim);}
+  .input-hint{font-size:.72rem;color:var(--muted);margin-top:.3rem;font-style:italic;}
   .modal-actions{display:flex;gap:.7rem;margin-top:1.4rem;}
   .btn-cancel{flex:1;padding:.62rem;background:transparent;border:1px solid #2e2e45;border-radius:5px;color:var(--muted);font-family:'Spectral',serif;font-size:.9rem;cursor:pointer;}
   .btn-cancel:hover{border-color:#4a4a6e;}
   .btn-confirm{flex:2;padding:.62rem;background:linear-gradient(135deg,#c9a84c,#8a6f30);border:none;border-radius:5px;color:#0d0d14;font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;cursor:pointer;}
   .btn-confirm:hover{opacity:.85;}
   .btn-confirm:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-confirm-red{flex:2;padding:.62rem;background:linear-gradient(135deg,#8b2020,#5a1010);border:none;border-radius:5px;color:#fff;font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;cursor:pointer;}
+  .btn-confirm-red:disabled{opacity:.4;cursor:not-allowed;}
   .modal-close{position:absolute;top:.75rem;right:.85rem;background:none;border:none;color:var(--muted);font-size:1.15rem;cursor:pointer;}
   .qr-wrap{text-align:center;}
   .qr-wrap h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold);margin-bottom:.35rem;}
   .qr-subtitle{color:var(--muted);font-size:.82rem;margin-bottom:1.1rem;}
   .qr-wrap img{width:190px;height:190px;border-radius:8px;border:3px solid var(--gold-dim);display:block;margin:0 auto 1.1rem;}
-  .qr-ticket-info{background:#0d0d14;border-radius:6px;padding:.7rem 1rem;font-size:.85rem;line-height:1.8;color:var(--muted);text-align:left;margin-bottom:1rem;}
+  .qr-ticket-info{background:#0d0d14;border-radius:6px;padding:.7rem 1rem;font-size:.85rem;line-height:1.8;color:var(--muted);text-align:left;margin-bottom:.8rem;}
   .qr-ticket-info strong{color:var(--text);}
   .qr-note{font-size:.72rem;color:var(--muted);font-style:italic;}
+  .email-sent-note{font-size:.78rem;color:#27ae60;margin-top:.5rem;}
   .btn-done{width:100%;margin-top:.9rem;padding:.68rem;background:linear-gradient(135deg,#c9a84c,#8a6f30);border:none;border-radius:5px;color:#0d0d14;font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;cursor:pointer;}
-  .btn-done:hover{opacity:.85;}
+  .status-msg{margin-top:.7rem;font-size:.82rem;min-height:1.2em;}
   .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(201,168,76,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem;}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -133,8 +108,9 @@
 
 <div class="info-bar">
   <div class="sel-info" id="selInfo">Место не выбрано</div>
+  <button class="btn-secondary" onclick="openRestoreModal()">Восстановить QR</button>
+  <button class="btn-danger"    onclick="openReturnModal()">Вернуть билет</button>
   <button class="btn-book" id="btnBook" disabled onclick="openBookingModal()">Забронировать</button>
-  <button class="btn-return" onclick="openRestoreModal()">Восстановить QR</button>
 </div>
 
 <!-- Модалка бронирования -->
@@ -145,8 +121,9 @@
     <div class="seat-summary" id="bookSummary"></div>
     <label>Ваше имя</label>
     <input type="text" id="guestName" placeholder="Иванов Иван" maxlength="60">
-    <label style="margin-top:.9rem;">Email (для восстановления QR)</label>
-    <input type="text" id="guestEmail" placeholder="ivan@example.com" maxlength="120">
+    <label>Email</label>
+    <input type="email" id="guestEmail" placeholder="ivan@example.com" maxlength="120">
+    <p class="input-hint">Билет придёт на почту, и вы сможете восстановить QR по email</p>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('modalBook')">Отмена</button>
       <button class="btn-confirm" id="btnConfirm" onclick="confirmBooking()">Получить QR</button>
@@ -163,49 +140,65 @@
       <img id="qrImg" src="" alt="QR билет">
       <div class="qr-ticket-info" id="qrInfo"></div>
       <p class="qr-note">⚠️ QR-код одноразовый — аннулируется после сканирования</p>
+      <p class="email-sent-note" id="emailSentNote" style="display:none;">✉️ Билет также отправлен на вашу почту</p>
       <button class="btn-done" onclick="closeDone()">Готово</button>
     </div>
   </div>
 </div>
 
+<!-- Модалка возврата -->
+<div class="modal-bg" id="modalReturn">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalReturn')">✕</button>
+    <h2>Возврат билета</h2>
+    <div class="seat-summary">Введите ID билета из вашего QR-кода или письма.<br><span style="color:#e74c3c;font-size:.78rem;">⚠️ Возврат невозможен, если билет уже использован.</span></div>
+    <label>ID билета</label>
+    <input type="text" id="returnId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" maxlength="36">
+    <div class="status-msg" id="returnMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalReturn')">Отмена</button>
+      <button class="btn-confirm-red" id="btnReturnConfirm" onclick="confirmReturn()">Вернуть билет</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка восстановления QR -->
+<div class="modal-bg" id="modalRestore">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalRestore')">✕</button>
+    <h2>Восстановить QR</h2>
+    <div class="seat-summary">Введите email, указанный при бронировании.</div>
+    <label>Email</label>
+    <input type="email" id="restoreEmail" placeholder="ivan@example.com" maxlength="120">
+    <div class="status-msg" id="restoreMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalRestore')">Отмена</button>
+      <button class="btn-confirm" id="btnRestoreConfirm" onclick="confirmRestore()">Найти билеты</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка результата восстановления -->
+<div class="modal-bg" id="modalRestoreResult">
+  <div class="modal" style="max-width:420px;overflow-y:auto;max-height:90vh;">
+    <button class="modal-close" onclick="closeModal('modalRestoreResult')">✕</button>
+    <div class="qr-wrap">
+      <h2>Ваши билеты</h2>
+      <div id="restoreResults"></div>
+    </div>
+  </div>
+</div>
+
 <script>
-// ── Конфигурация зала ────────────────────────────────────────────────────
-// Партер: 20 рядов. Ряд 1 — у сцены (рисуется снизу), ряд 20 — вверху.
-// Ложи А (слева) и Б (справа): по 8 мест (2 ряда × 4 кресла).
-// Ложи выровнены по нижней части партера (ряды 5–8 примерно).
-
 const ROWS = [
-  {r:1,  seats:22, aisleAfter:11, smallAisle:false},
-  {r:2,  seats:22, aisleAfter:11, smallAisle:false},
-  {r:3,  seats:22, aisleAfter:11, smallAisle:false},
-  {r:4,  seats:22, aisleAfter:11, smallAisle:false},
-  {r:5,  seats:22, aisleAfter:11, smallAisle:false},
-  {r:6,  seats:24, aisleAfter:12, smallAisle:false},
-  {r:7,  seats:24, aisleAfter:12, smallAisle:false},
-  {r:8,  seats:24, aisleAfter:12, smallAisle:false},
-  {r:9,  seats:24, aisleAfter:12, smallAisle:false},
-  {r:10, seats:24, aisleAfter:12, smallAisle:false},
-  {r:11, seats:24, aisleAfter:12, smallAisle:false},
-  {r:12, seats:24, aisleAfter:12, smallAisle:false},
-  {r:13, seats:24, aisleAfter:12, smallAisle:false},
-  {r:14, seats:24, aisleAfter:12, smallAisle:false},
-  {r:15, seats:24, aisleAfter:12, smallAisle:true},
-  {r:16, seats:24, aisleAfter:12, smallAisle:true},
-  {r:17, seats:24, aisleAfter:12, smallAisle:true},
-  {r:18, seats:24, aisleAfter:12, smallAisle:true},
-  {r:19, seats:24, aisleAfter:12, smallAisle:true},
-  {r:20, seats:22, aisleAfter:11, smallAisle:false},
+  {r:1,seats:22,a:11,sm:false},{r:2,seats:22,a:11,sm:false},{r:3,seats:22,a:11,sm:false},
+  {r:4,seats:22,a:11,sm:false},{r:5,seats:22,a:11,sm:false},{r:6,seats:24,a:12,sm:false},
+  {r:7,seats:24,a:12,sm:false},{r:8,seats:24,a:12,sm:false},{r:9,seats:24,a:12,sm:false},
+  {r:10,seats:24,a:12,sm:false},{r:11,seats:24,a:12,sm:false},{r:12,seats:24,a:12,sm:false},
+  {r:13,seats:24,a:12,sm:false},{r:14,seats:24,a:12,sm:false},{r:15,seats:24,a:12,sm:true},
+  {r:16,seats:24,a:12,sm:true},{r:17,seats:24,a:12,sm:true},{r:18,seats:24,a:12,sm:true},
+  {r:19,seats:24,a:12,sm:true},{r:20,seats:22,a:11,sm:false},
 ];
-
-// Ложи выровнены снизу партера.
-// Высота одного ряда партера = 14px + 2px gap = 16px.
-// Ложи (2 ряда × 16px = 32px) выравниваем по низу — они у сцены.
-// Пустое пространство сверху = (20 рядов - 2 ряда) × 16px = 288px
-
-const SEAT_ROW_H = 16; // 14px высота + 2px gap
-const TOTAL_ROWS = 20;
-const LOZHA_ROWS_COUNT = 2;
-const LOZHA_SEATS = 4; // мест в одном ряду ложи
 
 let selectedSeat = null;
 let bookedMap = {};
@@ -213,73 +206,47 @@ let bookedMap = {};
 function buildHall(booked) {
   bookedMap = {};
   booked.forEach(b => { bookedMap[b.seat_id] = b; });
-
   const hall = document.getElementById('hall');
   hall.innerHTML = '';
-
-  // ── Ложа Б (слева от зрителя = слева на экране) ──
-  hall.appendChild(buildSideCol('Ложа_Б', 'Ложа Б'));
-
-  // ── Партер ──
-  const parterre = document.createElement('div');
-  parterre.className = 'parterre';
-  // Рисуем сверху вниз: ряд 20 первым
-  for (let i = ROWS.length - 1; i >= 0; i--) {
-    parterre.appendChild(buildRow(ROWS[i]));
-  }
-  hall.appendChild(parterre);
-
-  // ── Ложа А (справа) ──
-  hall.appendChild(buildSideCol('Ложа_А', 'Ложа А'));
+  hall.appendChild(buildLozha('Ложа_Б','Ложа Б'));
+  const pt = document.createElement('div');
+  pt.className = 'parterre';
+  for (let i = ROWS.length-1; i>=0; i--) pt.appendChild(buildRow(ROWS[i]));
+  hall.appendChild(pt);
+  hall.appendChild(buildLozha('Ложа_А','Ложа А'));
 }
 
-function buildSideCol(section, label) {
+function buildLozha(section, label) {
   const col = document.createElement('div');
-  col.className = 'side-col';
-
-  // Подпись
-  const lbl = document.createElement('div');
-  lbl.className = 'side-label';
-  lbl.textContent = label;
-  col.appendChild(lbl);
-
-  // Ряды ложи (2 ряда, ряд 2 выше ряда 1)
-  for (let row = LOZHA_ROWS_COUNT; row >= 1; row--) {
+  col.className = 'lozha';
+  const t = document.createElement('div');
+  t.className = 'lozha-title';
+  t.textContent = label;
+  col.appendChild(t);
+  for (let row=2; row>=1; row--) {
     const rowEl = document.createElement('div');
     rowEl.className = 'lozha-row';
-    for (let s = 1; s <= LOZHA_SEATS; s++) {
-      const seatNum = (row - 1) * LOZHA_SEATS + s;
-      rowEl.appendChild(makeSeat(section, row, seatNum));
+    for (let s=1; s<=4; s++) {
+      rowEl.appendChild(makeSeat(section, row, (row-1)*4+s));
     }
     col.appendChild(rowEl);
   }
-
   return col;
 }
 
 function buildRow(cfg) {
   const rowEl = document.createElement('div');
   rowEl.className = 'p-row';
-
   const lbl = document.createElement('span');
-  lbl.className = 'rl';
-  lbl.textContent = cfg.r;
+  lbl.className='rl'; lbl.textContent=cfg.r;
   rowEl.appendChild(lbl);
-
-  for (let s = 1; s <= cfg.seats; s++) {
-    if (s === cfg.aisleAfter + 1) {
-      const aisle = document.createElement('div');
-      aisle.className = cfg.smallAisle ? 'aisle-sm' : 'aisle';
-      rowEl.appendChild(aisle);
-    }
-    rowEl.appendChild(makeSeat('Партер', cfg.r, s));
+  for (let s=1; s<=cfg.seats; s++) {
+    if (s===cfg.a+1) { const ai=document.createElement('div'); ai.className=cfg.sm?'aisle-sm':'aisle'; rowEl.appendChild(ai); }
+    rowEl.appendChild(makeSeat('Партер',cfg.r,s));
   }
-
-  const lblR = document.createElement('span');
-  lblR.className = 'rl-r';
-  lblR.textContent = cfg.r;
+  const lblR=document.createElement('span');
+  lblR.className='rl-r'; lblR.textContent=cfg.r;
   rowEl.appendChild(lblR);
-
   return rowEl;
 }
 
@@ -287,16 +254,15 @@ function makeSeat(section, row, seat) {
   const seatId = `${section}_r${row}_s${seat}`;
   const el = document.createElement('div');
   el.className = 'seat';
-  el.dataset.id      = seatId;
-  el.dataset.section = section.replace(/_/g, ' ');
-  el.dataset.row     = row;
-  el.dataset.seat    = seat;
+  el.dataset.id = seatId;
+  el.dataset.section = section.replace(/_/g,' ');
+  el.dataset.row = row;
+  el.dataset.seat = seat;
   el.title = `${section.replace(/_/g,' ')}, ряд ${row}, место ${seat}`;
-
   if (bookedMap[seatId]) {
     const b = bookedMap[seatId];
     el.classList.add(b.used ? 'used' : 'taken');
-    el.title += b.used ? ' — использован' : ` — занято (${b.guest_name})`;
+    el.title += b.used ? ' — использован' : ` — занято`;
   } else {
     el.addEventListener('click', () => selectSeat(el));
   }
@@ -304,27 +270,20 @@ function makeSeat(section, row, seat) {
 }
 
 function selectSeat(el) {
-  document.querySelectorAll('.seat.selected').forEach(s => s.classList.remove('selected'));
-  selectedSeat = {
-    id:      el.dataset.id,
-    section: el.dataset.section,
-    row:     parseInt(el.dataset.row),
-    seat:    parseInt(el.dataset.seat),
-  };
+  document.querySelectorAll('.seat.selected').forEach(s=>s.classList.remove('selected'));
+  selectedSeat = {id:el.dataset.id, section:el.dataset.section, row:parseInt(el.dataset.row), seat:parseInt(el.dataset.seat)};
   el.classList.add('selected');
-  document.getElementById('selInfo').innerHTML =
-    `Выбрано: <strong>${selectedSeat.section}, ряд ${selectedSeat.row}, место ${selectedSeat.seat}</strong>`;
+  document.getElementById('selInfo').innerHTML = `Выбрано: <strong>${selectedSeat.section}, ряд ${selectedSeat.row}, место ${selectedSeat.seat}</strong>`;
   document.getElementById('btnBook').disabled = false;
 }
 
 function openBookingModal() {
   if (!selectedSeat) return;
-  document.getElementById('bookSummary').innerHTML =
-    `<strong>${selectedSeat.section}</strong><br>` +
-    `Ряд: <strong>${selectedSeat.row}</strong> &nbsp;·&nbsp; Место: <strong>${selectedSeat.seat}</strong>`;
+  document.getElementById('bookSummary').innerHTML = `<strong>${selectedSeat.section}</strong><br>Ряд: <strong>${selectedSeat.row}</strong> &nbsp;·&nbsp; Место: <strong>${selectedSeat.seat}</strong>`;
   document.getElementById('guestName').value = '';
+  document.getElementById('guestEmail').value = '';
   document.getElementById('modalBook').classList.add('open');
-  setTimeout(() => document.getElementById('guestName').focus(), 100);
+  setTimeout(()=>document.getElementById('guestName').focus(),100);
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -345,148 +304,92 @@ async function confirmBooking() {
   btn.innerHTML = '<span class="spinner"></span>Создание…';
   try {
     const resp = await fetch('/api/book', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        seat_id:    selectedSeat.id,
-        row_num:    selectedSeat.row,
-        seat_num:   selectedSeat.seat,
-        section:    selectedSeat.section,
-        guest_name: name,
-        email: document.getElementById('guestEmail').value.trim(),
-      })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({seat_id:selectedSeat.id, row_num:selectedSeat.row, seat_num:selectedSeat.seat, section:selectedSeat.section, guest_name:name, email:document.getElementById('guestEmail').value.trim()})
     });
-    if (resp.status === 409) {
-      alert('Это место только что заняли. Пожалуйста, выберите другое.');
-      closeModal('modalBook');
-      loadSeats();
-      return;
-    }
+    if (resp.status===409) { alert('Это место только что заняли. Выберите другое.'); closeModal('modalBook'); loadSeats(); return; }
     const data = await resp.json();
     closeModal('modalBook');
-    showQR(data);
-  } catch(e) {
-    alert('Ошибка сети. Проверьте соединение и попробуйте ещё раз.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Получить QR';
-  }
+    document.getElementById('qrImg').src = 'data:image/png;base64,'+data.qr_base64;
+    document.getElementById('qrInfo').innerHTML = `<strong>${data.guest_name}</strong><br>${data.section} · ряд ${data.row_num} · место ${data.seat_num}<br><small style="font-size:.7rem;opacity:.5;">ID: ${data.ticket_id}</small>`;
+    const emailNote = document.getElementById('emailSentNote');
+    emailNote.style.display = data.email_sent ? 'block' : 'none';
+    document.getElementById('modalQR').classList.add('open');
+  } catch(e) { alert('Ошибка сети. Проверьте соединение и попробуйте ещё раз.'); }
+  finally { btn.disabled=false; btn.textContent='Получить QR'; }
 }
 
-function showQR(data) {
-  document.getElementById('qrImg').src = 'data:image/png;base64,' + data.qr_base64;
-  document.getElementById('qrInfo').innerHTML =
-    `<strong>${data.guest_name}</strong><br>` +
-    `${data.section} · ряд ${data.row_num} · место ${data.seat_num}<br>` +
-    `<small style="font-size:.72rem;opacity:.6;">ID: ${data.ticket_id}</small>`;
-  document.getElementById('modalQR').classList.add('open');
+// ── Возврат билета ───────────────────────────────────────────────────────
+function openReturnModal() {
+  document.getElementById('returnId').value = '';
+  document.getElementById('returnMsg').textContent = '';
+  document.getElementById('modalReturn').classList.add('open');
+  setTimeout(()=>document.getElementById('returnId').focus(),100);
 }
 
-async function loadSeats() {
+async function confirmReturn() {
+  const id = document.getElementById('returnId').value.trim();
+  const msg = document.getElementById('returnMsg');
+  if (!id) { document.getElementById('returnId').focus(); return; }
+  const btn = document.getElementById('btnReturnConfirm');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Обработка…';
+  msg.textContent = '';
   try {
-    const resp = await fetch('/api/seats');
+    const resp = await fetch('/api/cancel/'+encodeURIComponent(id), {method:'DELETE'});
     const data = await resp.json();
-    buildHall(data.booked);
-  } catch(e) {
-    buildHall([]);
-  }
+    if (resp.ok) {
+      msg.style.color='#2ecc71'; msg.textContent='✅ '+data.message;
+      loadSeats();
+      setTimeout(()=>closeModal('modalReturn'), 2000);
+    } else { msg.style.color='#e74c3c'; msg.textContent='❌ '+data.detail; }
+  } catch(e) { msg.style.color='#e74c3c'; msg.textContent='❌ Ошибка сети.'; }
+  finally { btn.disabled=false; btn.textContent='Вернуть билет'; }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('guestName').addEventListener('keydown', e => {
-    if (e.key === 'Enter') confirmBooking();
-  });
-  loadSeats();
-  setInterval(loadSeats, 30000);
-});
-
+// ── Восстановление QR ────────────────────────────────────────────────────
 function openRestoreModal() {
   document.getElementById('restoreEmail').value = '';
   document.getElementById('restoreMsg').textContent = '';
   document.getElementById('modalRestore').classList.add('open');
-  setTimeout(() => document.getElementById('restoreEmail').focus(), 100);
+  setTimeout(()=>document.getElementById('restoreEmail').focus(),100);
 }
 
 async function confirmRestore() {
   const email = document.getElementById('restoreEmail').value.trim();
   const msg = document.getElementById('restoreMsg');
   if (!email) { document.getElementById('restoreEmail').focus(); return; }
-
   const btn = document.getElementById('btnRestoreConfirm');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Поиск…';
-  msg.textContent = '';
-
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Поиск…'; msg.textContent='';
   try {
-    const resp = await fetch('/api/restore-qr', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({email})
-    });
+    const resp = await fetch('/api/restore-qr', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email})});
     const data = await resp.json();
-    if (!resp.ok) {
-      msg.style.color = '#e74c3c';
-      msg.textContent = '❌ ' + data.detail;
-      return;
-    }
+    if (!resp.ok) { msg.style.color='#e74c3c'; msg.textContent='❌ '+data.detail; return; }
     closeModal('modalRestore');
-    showRestoreResults(data.tickets);
-  } catch(e) {
-    msg.style.color = '#e74c3c';
-    msg.textContent = '❌ Ошибка сети. Попробуйте ещё раз.';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Найти билеты';
-  }
-}
-
-function showRestoreResults(tickets) {
-  const container = document.getElementById('restoreResults');
-  container.innerHTML = tickets.map((t, i) => `
-    <div style="margin-bottom:${i<tickets.length-1?'1.5rem':'0'};">
-      <img src="data:image/png;base64,${t.qr_base64}"
-           style="width:170px;height:170px;border-radius:8px;border:3px solid var(--gold-dim);display:block;margin:0 auto .8rem;">
-      <div style="background:#0d0d14;border-radius:6px;padding:.6rem .9rem;font-size:.83rem;color:var(--muted);line-height:1.7;text-align:left;">
-        <strong style="color:var(--text);">${t.guest_name}</strong><br>
-        ${t.section} · ряд ${t.row_num} · место ${t.seat_num}
+    document.getElementById('restoreResults').innerHTML = data.tickets.map((t,i)=>`
+      <div style="margin-bottom:${i<data.tickets.length-1?'1.5rem':'0'};">
+        <img src="data:image/png;base64,${t.qr_base64}" style="width:170px;height:170px;border-radius:8px;border:3px solid var(--gold-dim);display:block;margin:0 auto .8rem;">
+        <div style="background:#0d0d14;border-radius:6px;padding:.6rem .9rem;font-size:.83rem;color:var(--muted);line-height:1.7;text-align:left;">
+          <strong style="color:var(--text);">${t.guest_name}</strong><br>${t.section} · ряд ${t.row_num} · место ${t.seat_num}<br>
+          <small style="font-size:.7rem;opacity:.5;">ID: ${t.ticket_id}</small>
+        </div>
       </div>
-    </div>
-  `).join('<hr style="border:none;border-top:1px solid #2a2a3a;margin:1rem 0;">');
-  document.getElementById('modalRestoreResult').classList.add('open');
+      ${i<data.tickets.length-1?'<hr style="border:none;border-top:1px solid #2a2a3a;margin:1rem 0;">':''}
+    `).join('');
+    document.getElementById('modalRestoreResult').classList.add('open');
+  } catch(e) { msg.style.color='#e74c3c'; msg.textContent='❌ Ошибка сети.'; }
+  finally { btn.disabled=false; btn.textContent='Найти билеты'; }
 }
 
-document.getElementById('restoreEmail').addEventListener('keydown', e => {
-  if (e.key === 'Enter') confirmRestore();
-});
+document.getElementById('guestName').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('guestEmail').focus(); });
+document.getElementById('returnId').addEventListener('keydown', e=>{ if(e.key==='Enter') confirmReturn(); });
+document.getElementById('restoreEmail').addEventListener('keydown', e=>{ if(e.key==='Enter') confirmRestore(); });
 
+async function loadSeats() {
+  try { const r=await fetch('/api/seats'); const d=await r.json(); buildHall(d.booked); } catch(e){ buildHall([]); }
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{ loadSeats(); setInterval(loadSeats,30000); });
 </script>
-
-<!-- Модалка восстановления QR -->
-<div class="modal-bg" id="modalRestore">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('modalRestore')">✕</button>
-    <h2>Восстановить QR</h2>
-    <div class="seat-summary">Введите email, который вы указали при бронировании.</div>
-    <label style="margin-top:.9rem;">Email</label>
-    <input type="text" id="restoreEmail" placeholder="ivan@example.com" maxlength="120">
-    <div id="restoreMsg" style="margin-top:.7rem;font-size:.82rem;min-height:1.2em;"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('modalRestore')">Отмена</button>
-      <button class="btn-confirm" id="btnRestoreConfirm" onclick="confirmRestore()">Найти билеты</button>
-    </div>
-  </div>
-</div>
-
-<!-- Модалка показа восстановленных QR -->
-<div class="modal-bg" id="modalRestoreResult">
-  <div class="modal" style="max-width:420px;">
-    <button class="modal-close" onclick="closeModal('modalRestoreResult')">✕</button>
-    <div class="qr-wrap">
-      <h2>Ваши билеты</h2>
-      <div id="restoreResults"></div>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
