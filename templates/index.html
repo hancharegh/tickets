@@ -78,7 +78,7 @@
   .btn-book:hover:not(:disabled){opacity:.85;transform:scale(1.02);}
   .btn-book:disabled{opacity:.3;cursor:not-allowed;}
   .btn-return{background:transparent;color:var(--muted);border:1px solid #2e2e45;border-radius:5px;padding:.65rem 1.2rem;font-family:'Playfair Display',serif;font-size:.9rem;cursor:pointer;transition:border-color .2s,color .2s;}
-  .btn-return:hover{border-color:#8b2020;color:#e74c3c;}
+  .btn-return:hover{border-color:var(--gold-dim);color:var(--gold);}
 
   /* модалки */
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
@@ -134,7 +134,7 @@
 <div class="info-bar">
   <div class="sel-info" id="selInfo">Место не выбрано</div>
   <button class="btn-book" id="btnBook" disabled onclick="openBookingModal()">Забронировать</button>
-  <button class="btn-return" onclick="openReturnModal()">Вернуть билет</button>
+  <button class="btn-return" onclick="openRestoreModal()">Восстановить QR</button>
 </div>
 
 <!-- Модалка бронирования -->
@@ -145,6 +145,8 @@
     <div class="seat-summary" id="bookSummary"></div>
     <label>Ваше имя</label>
     <input type="text" id="guestName" placeholder="Иванов Иван" maxlength="60">
+    <label style="margin-top:.9rem;">Email (для восстановления QR)</label>
+    <input type="text" id="guestEmail" placeholder="ivan@example.com" maxlength="120">
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('modalBook')">Отмена</button>
       <button class="btn-confirm" id="btnConfirm" onclick="confirmBooking()">Получить QR</button>
@@ -351,6 +353,7 @@ async function confirmBooking() {
         seat_num:   selectedSeat.seat,
         section:    selectedSeat.section,
         guest_name: name,
+        email: document.getElementById('guestEmail').value.trim(),
       })
     });
     if (resp.status === 409) {
@@ -397,62 +400,93 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(loadSeats, 30000);
 });
 
-function openReturnModal() {
-  document.getElementById('returnId').value = '';
-  document.getElementById('returnMsg').textContent = '';
-  document.getElementById('modalReturn').classList.add('open');
-  setTimeout(() => document.getElementById('returnId').focus(), 100);
+function openRestoreModal() {
+  document.getElementById('restoreEmail').value = '';
+  document.getElementById('restoreMsg').textContent = '';
+  document.getElementById('modalRestore').classList.add('open');
+  setTimeout(() => document.getElementById('restoreEmail').focus(), 100);
 }
 
-async function confirmReturn() {
-  const id = document.getElementById('returnId').value.trim();
-  const msg = document.getElementById('returnMsg');
-  if (!id) { document.getElementById('returnId').focus(); return; }
+async function confirmRestore() {
+  const email = document.getElementById('restoreEmail').value.trim();
+  const msg = document.getElementById('restoreMsg');
+  if (!email) { document.getElementById('restoreEmail').focus(); return; }
 
-  const btn = document.getElementById('btnReturnConfirm');
+  const btn = document.getElementById('btnRestoreConfirm');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Обработка…';
+  btn.innerHTML = '<span class="spinner"></span>Поиск…';
   msg.textContent = '';
 
   try {
-    const resp = await fetch('/api/cancel/' + encodeURIComponent(id), { method: 'DELETE' });
+    const resp = await fetch('/api/restore-qr', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
     const data = await resp.json();
-    if (resp.ok) {
-      msg.style.color = '#2ecc71';
-      msg.textContent = '✅ ' + data.message;
-      loadSeats();
-      setTimeout(() => closeModal('modalReturn'), 2000);
-    } else {
+    if (!resp.ok) {
       msg.style.color = '#e74c3c';
       msg.textContent = '❌ ' + data.detail;
+      return;
     }
+    closeModal('modalRestore');
+    showRestoreResults(data.tickets);
   } catch(e) {
     msg.style.color = '#e74c3c';
     msg.textContent = '❌ Ошибка сети. Попробуйте ещё раз.';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Вернуть билет';
+    btn.textContent = 'Найти билеты';
   }
 }
+
+function showRestoreResults(tickets) {
+  const container = document.getElementById('restoreResults');
+  container.innerHTML = tickets.map((t, i) => `
+    <div style="margin-bottom:${i<tickets.length-1?'1.5rem':'0'};">
+      <img src="data:image/png;base64,${t.qr_base64}"
+           style="width:170px;height:170px;border-radius:8px;border:3px solid var(--gold-dim);display:block;margin:0 auto .8rem;">
+      <div style="background:#0d0d14;border-radius:6px;padding:.6rem .9rem;font-size:.83rem;color:var(--muted);line-height:1.7;text-align:left;">
+        <strong style="color:var(--text);">${t.guest_name}</strong><br>
+        ${t.section} · ряд ${t.row_num} · место ${t.seat_num}
+      </div>
+    </div>
+  `).join('<hr style="border:none;border-top:1px solid #2a2a3a;margin:1rem 0;">');
+  document.getElementById('modalRestoreResult').classList.add('open');
+}
+
+document.getElementById('restoreEmail').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmRestore();
+});
+
 </script>
 
-<!-- Модалка возврата -->
-<div class="modal-bg" id="modalReturn">
+<!-- Модалка восстановления QR -->
+<div class="modal-bg" id="modalRestore">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('modalReturn')">✕</button>
-    <h2>Возврат билета</h2>
-    <div class="seat-summary" style="margin-bottom:1.1rem;font-size:.84rem;color:var(--muted);line-height:1.6;">
-      Введите ID билета из вашего QR-кода.<br>
-      <span style="color:#e74c3c;font-size:.78rem;">⚠️ Возврат невозможен, если билет уже был использован.</span>
-    </div>
-    <label>ID билета</label>
-    <input type="text" id="returnId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" maxlength="36">
-    <div id="returnMsg" style="margin-top:.7rem;font-size:.82rem;min-height:1.2em;"></div>
+    <button class="modal-close" onclick="closeModal('modalRestore')">✕</button>
+    <h2>Восстановить QR</h2>
+    <div class="seat-summary">Введите email, который вы указали при бронировании.</div>
+    <label style="margin-top:.9rem;">Email</label>
+    <input type="text" id="restoreEmail" placeholder="ivan@example.com" maxlength="120">
+    <div id="restoreMsg" style="margin-top:.7rem;font-size:.82rem;min-height:1.2em;"></div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('modalReturn')">Отмена</button>
-      <button class="btn-confirm" id="btnReturnConfirm" onclick="confirmReturn()" style="background:linear-gradient(135deg,#8b2020,#5a1010);">Вернуть билет</button>
+      <button class="btn-cancel" onclick="closeModal('modalRestore')">Отмена</button>
+      <button class="btn-confirm" id="btnRestoreConfirm" onclick="confirmRestore()">Найти билеты</button>
     </div>
   </div>
 </div>
+
+<!-- Модалка показа восстановленных QR -->
+<div class="modal-bg" id="modalRestoreResult">
+  <div class="modal" style="max-width:420px;">
+    <button class="modal-close" onclick="closeModal('modalRestoreResult')">✕</button>
+    <div class="qr-wrap">
+      <h2>Ваши билеты</h2>
+      <div id="restoreResults"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
