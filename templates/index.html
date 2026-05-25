@@ -14,6 +14,9 @@
     --st:#3d1515; --stb:#8b2020;
     --su:#1a2e1a; --sub:#2a4a2a;
     --sh:#3d3520; --ss:#5c4a10; --ssb:#c9a84c;
+    --seat-h: 14px;
+    --seat-w: 16px;
+    --row-gap: 2px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Spectral',serif;min-height:100vh;}
@@ -30,32 +33,35 @@
   .ld-t{background:var(--st);border:1px solid var(--stb);}
   .ld-s{background:var(--ss);border:1px solid var(--ssb);}
 
-  .stage-wrap{display:flex;justify-content:center;padding:1.5rem 1rem .3rem;}
-  .stage{width:min(500px,80vw);height:34px;background:linear-gradient(180deg,#3a2e10,#1e1808);border:1px solid var(--gold-dim);border-radius:6px 6px 0 0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.8rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;box-shadow:0 -4px 24px rgba(201,168,76,.1);}
+  /* внешний скролл */
+  .hall-outer{overflow-x:auto;padding:1.5rem 1rem 1rem;display:flex;justify-content:center;}
 
-  /* hall scroll */
-  .hall-outer{overflow-x:auto;padding:.5rem 1rem 1rem;display:flex;justify-content:flex-start;}
-  .hall-inner{display:flex;gap:10px;align-items:flex-start;padding:8px 4px;}
+  /* обёртка всего зала */
+  .hall-wrap{display:inline-flex;flex-direction:column;align-items:center;gap:0;}
 
-  /* lozha blocks */
-  .lozha-block{display:flex;flex-direction:column;gap:2px;align-items:center;}
-  .lozha-title{font-size:.6rem;color:var(--gold-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;text-align:center;white-space:nowrap;}
-  .lozha-sep{height:8px;}
+  /* строки зала — партер + боковые ложи */
+  .hall-rows{display:flex;align-items:flex-end;gap:8px;}
 
-  /* parterre */
-  .parterre{display:flex;flex-direction:column;gap:2px;}
+  /* боковая колонка (ложа) */
+  .side-col{display:flex;flex-direction:column;justify-content:flex-end;gap:var(--row-gap);align-items:center;}
+  .side-label{font-size:.62rem;color:var(--gold-dim);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;white-space:nowrap;}
+
+  /* ряды лож */
+  .lozha-row{display:flex;gap:2px;}
+
+  /* партер */
+  .parterre{display:flex;flex-direction:column;gap:var(--row-gap);}
   .p-row{display:flex;align-items:center;gap:1px;}
-  .rl{font-size:.55rem;color:var(--muted);width:32px;text-align:right;padding-right:4px;flex-shrink:0;font-variant-numeric:tabular-nums;white-space:nowrap;}
-  .rl-r{font-size:.55rem;color:var(--muted);width:32px;text-align:left;padding-left:4px;flex-shrink:0;}
+  .rl{font-size:.55rem;color:var(--muted);width:30px;text-align:right;padding-right:4px;flex-shrink:0;font-variant-numeric:tabular-nums;}
+  .rl-r{font-size:.55rem;color:var(--muted);width:30px;text-align:left;padding-left:4px;flex-shrink:0;}
   .aisle{width:10px;flex-shrink:0;}
   .aisle-sm{width:5px;flex-shrink:0;}
 
-  /* right partner */
-  .partner-block{display:flex;flex-direction:column;gap:2px;align-items:center;}
-  .partner-sep{height:8px;}
+  /* сцена */
+  .stage{margin-top:4px;width:min(420px,70%);height:30px;background:linear-gradient(180deg,#3a2e10,#1e1808);border:1px solid var(--gold-dim);border-radius:0 0 6px 6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.75rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;box-shadow:0 4px 20px rgba(201,168,76,.1);}
 
-  /* seat */
-  .seat{width:16px;height:14px;border-radius:3px 3px 2px 2px;border:1px solid var(--sfb);background:var(--sf);cursor:pointer;flex-shrink:0;transition:transform .1s,background .12s,border-color .12s,box-shadow .12s;position:relative;}
+  /* кресло */
+  .seat{width:var(--seat-w);height:var(--seat-h);border-radius:3px 3px 2px 2px;border:1px solid var(--sfb);background:var(--sf);cursor:pointer;flex-shrink:0;transition:transform .1s,background .12s,border-color .12s,box-shadow .12s;position:relative;}
   .seat::after{content:'';position:absolute;top:0;left:10%;right:10%;height:3px;background:rgba(255,255,255,.06);border-radius:2px 2px 0 0;}
   .seat:hover{background:var(--sh);border-color:var(--gold-dim);transform:scaleY(1.1);z-index:2;box-shadow:0 0 5px rgba(201,168,76,.2);}
   .seat.taken{background:var(--st);border-color:var(--stb);cursor:not-allowed;}
@@ -64,7 +70,7 @@
   .seat.used:hover{transform:none;box-shadow:none;}
   .seat.selected{background:var(--ss);border-color:var(--ssb);box-shadow:0 0 8px rgba(201,168,76,.5);transform:scaleY(1.15);z-index:3;}
 
-  /* info bar */
+  /* нижняя панель */
   .info-bar{position:sticky;bottom:0;background:var(--surface);border-top:1px solid #2a2a3a;padding:.9rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;z-index:100;box-shadow:0 -6px 28px rgba(0,0,0,.5);}
   .sel-info{flex:1;font-size:.88rem;color:var(--muted);}
   .sel-info strong{color:var(--gold);font-style:italic;}
@@ -72,7 +78,7 @@
   .btn-book:hover:not(:disabled){opacity:.85;transform:scale(1.02);}
   .btn-book:disabled{opacity:.3;cursor:not-allowed;}
 
-  /* modal */
+  /* модалки */
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
   .modal-bg.open{display:flex;}
   .modal{background:var(--surface);border:1px solid #2e2e45;border-radius:10px;padding:1.8rem;width:100%;max-width:390px;position:relative;box-shadow:0 0 60px rgba(0,0,0,.6);animation:slideUp .22s ease;}
@@ -84,14 +90,12 @@
   .modal input[type=text]{width:100%;background:#0d0d14;border:1px solid #2e2e45;border-radius:5px;padding:.6rem .85rem;color:var(--text);font-family:'Spectral',serif;font-size:.95rem;outline:none;transition:border-color .2s;}
   .modal input:focus{border-color:var(--gold-dim);}
   .modal-actions{display:flex;gap:.7rem;margin-top:1.4rem;}
-  .btn-cancel{flex:1;padding:.62rem;background:transparent;border:1px solid #2e2e45;border-radius:5px;color:var(--muted);font-family:'Spectral',serif;font-size:.9rem;cursor:pointer;transition:border-color .2s;}
+  .btn-cancel{flex:1;padding:.62rem;background:transparent;border:1px solid #2e2e45;border-radius:5px;color:var(--muted);font-family:'Spectral',serif;font-size:.9rem;cursor:pointer;}
   .btn-cancel:hover{border-color:#4a4a6e;}
-  .btn-confirm{flex:2;padding:.62rem;background:linear-gradient(135deg,#c9a84c,#8a6f30);border:none;border-radius:5px;color:#0d0d14;font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:opacity .2s;}
+  .btn-confirm{flex:2;padding:.62rem;background:linear-gradient(135deg,#c9a84c,#8a6f30);border:none;border-radius:5px;color:#0d0d14;font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;cursor:pointer;}
   .btn-confirm:hover{opacity:.85;}
   .btn-confirm:disabled{opacity:.4;cursor:not-allowed;}
   .modal-close{position:absolute;top:.75rem;right:.85rem;background:none;border:none;color:var(--muted);font-size:1.15rem;cursor:pointer;}
-
-  /* qr modal */
   .qr-wrap{text-align:center;}
   .qr-wrap h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold);margin-bottom:.35rem;}
   .qr-subtitle{color:var(--muted);font-size:.82rem;margin-bottom:1.1rem;}
@@ -99,9 +103,8 @@
   .qr-ticket-info{background:#0d0d14;border-radius:6px;padding:.7rem 1rem;font-size:.85rem;line-height:1.8;color:var(--muted);text-align:left;margin-bottom:1rem;}
   .qr-ticket-info strong{color:var(--text);}
   .qr-note{font-size:.72rem;color:var(--muted);font-style:italic;}
-  .btn-done{width:100%;margin-top:.9rem;padding:.68rem;background:linear-gradient(135deg,#c9a84c,#8a6f30);border:none;border-radius:5px;color:#0d0d14;font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:opacity .2s;}
+  .btn-done{width:100%;margin-top:.9rem;padding:.68rem;background:linear-gradient(135deg,#c9a84c,#8a6f30);border:none;border-radius:5px;color:#0d0d14;font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;cursor:pointer;}
   .btn-done:hover{opacity:.85;}
-
   .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(201,168,76,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem;}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -119,10 +122,11 @@
   <span class="legend-item"><span class="ld ld-s"></span>Выбрано</span>
 </div>
 
-<div class="stage-wrap"><div class="stage">Сцена</div></div>
-
 <div class="hall-outer">
-  <div class="hall-inner" id="hall"></div>
+  <div class="hall-wrap">
+    <div class="hall-rows" id="hall"></div>
+    <div class="stage">Сцена</div>
+  </div>
 </div>
 
 <div class="info-bar">
@@ -130,7 +134,7 @@
   <button class="btn-book" id="btnBook" disabled onclick="openBookingModal()">Забронировать</button>
 </div>
 
-<!-- Booking modal -->
+<!-- Модалка бронирования -->
 <div class="modal-bg" id="modalBook">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modalBook')">✕</button>
@@ -145,7 +149,7 @@
   </div>
 </div>
 
-<!-- QR modal -->
+<!-- QR модалка -->
 <div class="modal-bg" id="modalQR">
   <div class="modal">
     <div class="qr-wrap">
@@ -160,49 +164,43 @@
 </div>
 
 <script>
-// ── Точная схема зала по данным ──────────────────────────────────────────
-//
-// ПАРТЕР (ряды 1–19, нумерация снизу вверх = от сцены):
-//   Ряды 1–5:   места 1–22, промежуток после 11
-//   Ряды 6–14:  места 1–24, сплошной (промежуток после 12)
-//   Ряды 15–19: места 1–24, промежуток после 12 (маленький)
-//
-// ЛОЖА А (снизу-слева): 2 ряда × 4 места (ряд 1: места 1-4, ряд 2: места 5-8)
-// ЛОЖА Б (сверху-слева): аналогично
-//
-// ПРАВЫЙ ПАРТЕР:
-//   Нижний блок (партер 1с): 20 рядов × 1 место (места 1–12, 12с)
-//   Верхний блок (партер 13с): 20 рядов × 1 место (места 13–24, 22с, 24с)
+// ── Конфигурация зала ────────────────────────────────────────────────────
+// Партер: 20 рядов. Ряд 1 — у сцены (рисуется снизу), ряд 20 — вверху.
+// Ложи А (слева) и Б (справа): по 8 мест (2 ряда × 4 кресла).
+// Ложи выровнены по нижней части партера (ряды 5–8 примерно).
 
 const ROWS = [
-  // {r: номер_ряда, seats: кол-во, aisleAfter: после какого места промежуток}
-  {r:1,  seats:22, aisleAfter:11},
-  {r:2,  seats:22, aisleAfter:11},
-  {r:3,  seats:22, aisleAfter:11},
-  {r:4,  seats:22, aisleAfter:11},
-  {r:5,  seats:22, aisleAfter:11},
-  {r:6,  seats:24, aisleAfter:12},
-  {r:7,  seats:24, aisleAfter:12},
-  {r:8,  seats:24, aisleAfter:12},
-  {r:9,  seats:24, aisleAfter:12},
-  {r:10, seats:24, aisleAfter:12},
-  {r:11, seats:24, aisleAfter:12},
-  {r:12, seats:24, aisleAfter:12},
-  {r:13, seats:24, aisleAfter:12},
-  {r:14, seats:24, aisleAfter:12},
+  {r:1,  seats:22, aisleAfter:11, smallAisle:false},
+  {r:2,  seats:22, aisleAfter:11, smallAisle:false},
+  {r:3,  seats:22, aisleAfter:11, smallAisle:false},
+  {r:4,  seats:22, aisleAfter:11, smallAisle:false},
+  {r:5,  seats:22, aisleAfter:11, smallAisle:false},
+  {r:6,  seats:24, aisleAfter:12, smallAisle:false},
+  {r:7,  seats:24, aisleAfter:12, smallAisle:false},
+  {r:8,  seats:24, aisleAfter:12, smallAisle:false},
+  {r:9,  seats:24, aisleAfter:12, smallAisle:false},
+  {r:10, seats:24, aisleAfter:12, smallAisle:false},
+  {r:11, seats:24, aisleAfter:12, smallAisle:false},
+  {r:12, seats:24, aisleAfter:12, smallAisle:false},
+  {r:13, seats:24, aisleAfter:12, smallAisle:false},
+  {r:14, seats:24, aisleAfter:12, smallAisle:false},
   {r:15, seats:24, aisleAfter:12, smallAisle:true},
   {r:16, seats:24, aisleAfter:12, smallAisle:true},
   {r:17, seats:24, aisleAfter:12, smallAisle:true},
   {r:18, seats:24, aisleAfter:12, smallAisle:true},
   {r:19, seats:24, aisleAfter:12, smallAisle:true},
+  {r:20, seats:22, aisleAfter:11, smallAisle:false},
 ];
 
-// Ложи: 2 ряда по 4 места
-const LOZHA_ROWS = 2;
-const LOZHA_SEATS_PER_ROW = 4;
+// Ложи выровнены снизу партера.
+// Высота одного ряда партера = 14px + 2px gap = 16px.
+// Ложи (2 ряда × 16px = 32px) выравниваем по низу — они у сцены.
+// Пустое пространство сверху = (20 рядов - 2 ряда) × 16px = 288px
 
-// Правый партер: 20 рядов, 2 колонки (нижняя: 1-12, верхняя: 13-24)
-const PARTNER_ROWS = 20;
+const SEAT_ROW_H = 16; // 14px высота + 2px gap
+const TOTAL_ROWS = 20;
+const LOZHA_ROWS_COUNT = 2;
+const LOZHA_SEATS = 4; // мест в одном ряду ложи
 
 let selectedSeat = null;
 let bookedMap = {};
@@ -214,122 +212,70 @@ function buildHall(booked) {
   const hall = document.getElementById('hall');
   hall.innerHTML = '';
 
-  // ── Ложи (левый блок) ──
-  const lozhaBlock = document.createElement('div');
-  lozhaBlock.className = 'lozha-block';
+  // ── Ложа Б (слева от зрителя = слева на экране) ──
+  hall.appendChild(buildSideCol('Ложа_Б', 'Ложа Б'));
 
-  // Ложа Б (верх)
-  const lbTitle = document.createElement('div');
-  lbTitle.className = 'lozha-title';
-  lbTitle.textContent = 'Ложа Б';
-  lozhaBlock.appendChild(lbTitle);
-
-  for (let row = LOZHA_ROWS; row >= 1; row--) {
-    const rowEl = document.createElement('div');
-    rowEl.style.cssText = 'display:flex;gap:2px;';
-    for (let s = 1; s <= LOZHA_SEATS_PER_ROW; s++) {
-      const seatNum = (row - 1) * LOZHA_SEATS_PER_ROW + s;
-      rowEl.appendChild(makeSeat('Ложа_Б', row, seatNum));
-    }
-    lozhaBlock.appendChild(rowEl);
-  }
-
-  const sep = document.createElement('div');
-  sep.className = 'lozha-sep';
-  // small label
-  const midLabel = document.createElement('div');
-  midLabel.style.cssText = 'height:16px;';
-  lozhaBlock.appendChild(sep);
-  lozhaBlock.appendChild(midLabel);
-
-  // Ложа А (низ)
-  const laTitle = document.createElement('div');
-  laTitle.className = 'lozha-title';
-  laTitle.textContent = 'Ложа А';
-  lozhaBlock.appendChild(laTitle);
-
-  for (let row = LOZHA_ROWS; row >= 1; row--) {
-    const rowEl = document.createElement('div');
-    rowEl.style.cssText = 'display:flex;gap:2px;';
-    for (let s = 1; s <= LOZHA_SEATS_PER_ROW; s++) {
-      const seatNum = (row - 1) * LOZHA_SEATS_PER_ROW + s;
-      rowEl.appendChild(makeSeat('Ложа_А', row, seatNum));
-    }
-    lozhaBlock.appendChild(rowEl);
-  }
-
-  hall.appendChild(lozhaBlock);
-
-  // ── Партер (центр) ──
+  // ── Партер ──
   const parterre = document.createElement('div');
   parterre.className = 'parterre';
-
-  // Строим сверху вниз (ряд 19 первый — дальше от сцены)
+  // Рисуем сверху вниз: ряд 20 первым
   for (let i = ROWS.length - 1; i >= 0; i--) {
-    const cfg = ROWS[i];
-    const rowEl = document.createElement('div');
-    rowEl.className = 'p-row';
-
-    // Левый лейбл
-    const lbl = document.createElement('span');
-    lbl.className = 'rl';
-    lbl.textContent = cfg.r + ' ряд';
-    rowEl.appendChild(lbl);
-
-    for (let s = 1; s <= cfg.seats; s++) {
-      if (s === cfg.aisleAfter + 1) {
-        const aisle = document.createElement('div');
-        aisle.className = cfg.smallAisle ? 'aisle-sm' : 'aisle';
-        rowEl.appendChild(aisle);
-      }
-      rowEl.appendChild(makeSeat('Партер', cfg.r, s));
-    }
-
-    // Правый лейбл
-    const lblR = document.createElement('span');
-    lblR.className = 'rl-r';
-    lblR.textContent = cfg.r + ' ряд';
-    rowEl.appendChild(lblR);
-
-    parterre.appendChild(rowEl);
+    parterre.appendChild(buildRow(ROWS[i]));
   }
   hall.appendChild(parterre);
 
-  // ── Правый партер ──
-  const partnerBlock = document.createElement('div');
-  partnerBlock.className = 'partner-block';
+  // ── Ложа А (справа) ──
+  hall.appendChild(buildSideCol('Ложа_А', 'Ложа А'));
+}
 
-  // Верхний блок: места 13-24 (сверху на схеме)
-  const ptTopTitle = document.createElement('div');
-  ptTopTitle.className = 'lozha-title';
-  ptTopTitle.textContent = 'Партер 13с–24с';
-  partnerBlock.appendChild(ptTopTitle);
+function buildSideCol(section, label) {
+  const col = document.createElement('div');
+  col.className = 'side-col';
 
-  for (let row = PARTNER_ROWS; row >= 1; row--) {
+  // Подпись
+  const lbl = document.createElement('div');
+  lbl.className = 'side-label';
+  lbl.textContent = label;
+  col.appendChild(lbl);
+
+  // Ряды ложи (2 ряда, ряд 2 выше ряда 1)
+  for (let row = LOZHA_ROWS_COUNT; row >= 1; row--) {
     const rowEl = document.createElement('div');
-    rowEl.style.cssText = 'display:flex;gap:2px;';
-    rowEl.appendChild(makeSeat('Партер_правый_верх', row, row));
-    partnerBlock.appendChild(rowEl);
+    rowEl.className = 'lozha-row';
+    for (let s = 1; s <= LOZHA_SEATS; s++) {
+      const seatNum = (row - 1) * LOZHA_SEATS + s;
+      rowEl.appendChild(makeSeat(section, row, seatNum));
+    }
+    col.appendChild(rowEl);
   }
 
-  const pSep = document.createElement('div');
-  pSep.className = 'partner-sep';
-  partnerBlock.appendChild(pSep);
+  return col;
+}
 
-  // Нижний блок: места 1-12
-  const ptBotTitle = document.createElement('div');
-  ptBotTitle.className = 'lozha-title';
-  ptBotTitle.textContent = 'Партер 1с–12с';
-  partnerBlock.appendChild(ptBotTitle);
+function buildRow(cfg) {
+  const rowEl = document.createElement('div');
+  rowEl.className = 'p-row';
 
-  for (let row = PARTNER_ROWS; row >= 1; row--) {
-    const rowEl = document.createElement('div');
-    rowEl.style.cssText = 'display:flex;gap:2px;';
-    rowEl.appendChild(makeSeat('Партер_правый_низ', row, row));
-    partnerBlock.appendChild(rowEl);
+  const lbl = document.createElement('span');
+  lbl.className = 'rl';
+  lbl.textContent = cfg.r;
+  rowEl.appendChild(lbl);
+
+  for (let s = 1; s <= cfg.seats; s++) {
+    if (s === cfg.aisleAfter + 1) {
+      const aisle = document.createElement('div');
+      aisle.className = cfg.smallAisle ? 'aisle-sm' : 'aisle';
+      rowEl.appendChild(aisle);
+    }
+    rowEl.appendChild(makeSeat('Партер', cfg.r, s));
   }
 
-  hall.appendChild(partnerBlock);
+  const lblR = document.createElement('span');
+  lblR.className = 'rl-r';
+  lblR.textContent = cfg.r;
+  rowEl.appendChild(lblR);
+
+  return rowEl;
 }
 
 function makeSeat(section, row, seat) {
@@ -345,7 +291,7 @@ function makeSeat(section, row, seat) {
   if (bookedMap[seatId]) {
     const b = bookedMap[seatId];
     el.classList.add(b.used ? 'used' : 'taken');
-    el.title += b.used ? ` — использован` : ` — занято (${b.guest_name})`;
+    el.title += b.used ? ' — использован' : ` — занято (${b.guest_name})`;
   } else {
     el.addEventListener('click', () => selectSeat(el));
   }
@@ -369,7 +315,8 @@ function selectSeat(el) {
 function openBookingModal() {
   if (!selectedSeat) return;
   document.getElementById('bookSummary').innerHTML =
-    `<strong>${selectedSeat.section}</strong><br>Ряд: <strong>${selectedSeat.row}</strong> &nbsp;·&nbsp; Место: <strong>${selectedSeat.seat}</strong>`;
+    `<strong>${selectedSeat.section}</strong><br>` +
+    `Ряд: <strong>${selectedSeat.row}</strong> &nbsp;·&nbsp; Место: <strong>${selectedSeat.seat}</strong>`;
   document.getElementById('guestName').value = '';
   document.getElementById('modalBook').classList.add('open');
   setTimeout(() => document.getElementById('guestName').focus(), 100);
@@ -404,7 +351,7 @@ async function confirmBooking() {
       })
     });
     if (resp.status === 409) {
-      alert('Это место только что заняли. Выберите другое.');
+      alert('Это место только что заняли. Пожалуйста, выберите другое.');
       closeModal('modalBook');
       loadSeats();
       return;
