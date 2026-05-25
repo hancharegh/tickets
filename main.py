@@ -23,11 +23,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 # ─── Database ────────────────────────────────────────────────────────────────
 
-import os
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./theater.db")
-# Railway даёт URL вида postgres://, SQLAlchemy требует postgresql://
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+DATABASE_URL = "sqlite:///./theater.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -246,5 +242,22 @@ async def admin_list():
             }
             for t in tickets
         ]
+    finally:
+        db.close()
+
+
+@app.delete("/api/cancel/{ticket_id}")
+async def cancel_ticket(ticket_id: str):
+    """Cancel a ticket so the seat becomes free again. Only works if not yet used."""
+    db = SessionLocal()
+    try:
+        ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
+        if not ticket:
+            raise HTTPException(status_code=404, detail="Билет не найден")
+        if ticket.used:
+            raise HTTPException(status_code=410, detail="Билет уже был использован — возврат невозможен")
+        db.delete(ticket)
+        db.commit()
+        return {"ok": True, "message": "Билет успешно возвращён"}
     finally:
         db.close()
