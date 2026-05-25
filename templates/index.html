@@ -77,6 +77,8 @@
   .btn-book{background:linear-gradient(135deg,#c9a84c,#8a6f30);color:#0d0d14;border:none;border-radius:5px;padding:.65rem 1.8rem;font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s,transform .1s;}
   .btn-book:hover:not(:disabled){opacity:.85;transform:scale(1.02);}
   .btn-book:disabled{opacity:.3;cursor:not-allowed;}
+  .btn-return{background:transparent;color:var(--muted);border:1px solid #2e2e45;border-radius:5px;padding:.65rem 1.2rem;font-family:'Playfair Display',serif;font-size:.9rem;cursor:pointer;transition:border-color .2s,color .2s;}
+  .btn-return:hover{border-color:#8b2020;color:#e74c3c;}
 
   /* модалки */
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
@@ -132,6 +134,7 @@
 <div class="info-bar">
   <div class="sel-info" id="selInfo">Место не выбрано</div>
   <button class="btn-book" id="btnBook" disabled onclick="openBookingModal()">Забронировать</button>
+  <button class="btn-return" onclick="openReturnModal()">Вернуть билет</button>
 </div>
 
 <!-- Модалка бронирования -->
@@ -393,6 +396,63 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSeats();
   setInterval(loadSeats, 30000);
 });
+
+function openReturnModal() {
+  document.getElementById('returnId').value = '';
+  document.getElementById('returnMsg').textContent = '';
+  document.getElementById('modalReturn').classList.add('open');
+  setTimeout(() => document.getElementById('returnId').focus(), 100);
+}
+
+async function confirmReturn() {
+  const id = document.getElementById('returnId').value.trim();
+  const msg = document.getElementById('returnMsg');
+  if (!id) { document.getElementById('returnId').focus(); return; }
+
+  const btn = document.getElementById('btnReturnConfirm');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Обработка…';
+  msg.textContent = '';
+
+  try {
+    const resp = await fetch('/api/cancel/' + encodeURIComponent(id), { method: 'DELETE' });
+    const data = await resp.json();
+    if (resp.ok) {
+      msg.style.color = '#2ecc71';
+      msg.textContent = '✅ ' + data.message;
+      loadSeats();
+      setTimeout(() => closeModal('modalReturn'), 2000);
+    } else {
+      msg.style.color = '#e74c3c';
+      msg.textContent = '❌ ' + data.detail;
+    }
+  } catch(e) {
+    msg.style.color = '#e74c3c';
+    msg.textContent = '❌ Ошибка сети. Попробуйте ещё раз.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Вернуть билет';
+  }
+}
 </script>
+
+<!-- Модалка возврата -->
+<div class="modal-bg" id="modalReturn">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalReturn')">✕</button>
+    <h2>Возврат билета</h2>
+    <div class="seat-summary" style="margin-bottom:1.1rem;font-size:.84rem;color:var(--muted);line-height:1.6;">
+      Введите ID билета из вашего QR-кода.<br>
+      <span style="color:#e74c3c;font-size:.78rem;">⚠️ Возврат невозможен, если билет уже был использован.</span>
+    </div>
+    <label>ID билета</label>
+    <input type="text" id="returnId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" maxlength="36">
+    <div id="returnMsg" style="margin-top:.7rem;font-size:.82rem;min-height:1.2em;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalReturn')">Отмена</button>
+      <button class="btn-confirm" id="btnReturnConfirm" onclick="confirmReturn()" style="background:linear-gradient(135deg,#8b2020,#5a1010);">Вернуть билет</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
