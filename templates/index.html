@@ -7,19 +7,38 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0d0d14;--surface:#13131f;--gold:#c9a84c;--gold-dim:#8a6f30;--text:#e8e0d0;--muted:#7a7060;--sf:#2a2a3e;--sfb:#4a4a6e;--st:#3d1515;--stb:#8b2020;--su:#1a2e1a;--sub:#2a4a2a;--sh:#3d3520;--ss:#5c4a10;--ssb:#c9a84c;}
+  :root{
+    --bg:#0d0d14;--surface:#13131f;--gold:#c9a84c;--gold-dim:#8a6f30;
+    --text:#e8e0d0;--muted:#7a7060;
+    --sf:#2a2a3e;--sfb:#4a4a6e;
+    --st:#3d1515;--stb:#8b2020;
+    --su:#1a1a1a;--sub:#333;
+    --sh:#3d3520;--ss:#5c4a10;--ssb:#c9a84c;
+
+    /* Зоны */
+    --z1:#2a1f3d;--z1b:#6a4fa0;   /* ряды 3–5 — фиолетовый */
+    --z2:#1a2e20;--z2b:#3a8a50;   /* ряды 6–12 центр — зелёный */
+    --z3:#1a2535;--z3b:#3a6a9a;   /* ряды 6–14 бока — синий */
+    --z4:#2e1f10;--z4b:#9a6030;   /* ряды 15–20 — янтарный */
+  }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Spectral',serif;min-height:100vh;}
   header{text-align:center;padding:2rem 1rem 1.2rem;border-bottom:1px solid #2a2a3a;position:relative;}
   header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,#1e1830,transparent 70%);pointer-events:none;}
   header h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,2.6rem);font-weight:900;color:var(--gold);text-shadow:0 0 40px rgba(201,168,76,.3);}
   header p{margin-top:.4rem;color:var(--muted);font-style:italic;font-size:.9rem;letter-spacing:.06em;}
-  .legend{display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;justify-content:center;padding:1rem;border-bottom:1px solid #1f1f2e;font-size:.78rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+
+  .legend{display:flex;flex-wrap:wrap;gap:.5rem 1.1rem;justify-content:center;padding:.9rem 1rem;border-bottom:1px solid #1f1f2e;font-size:.75rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
   .legend-item{display:flex;align-items:center;gap:.4rem;}
-  .ld{width:13px;height:12px;border-radius:2px;}
-  .ld-f{background:var(--sf);border:1px solid var(--sfb);}
-  .ld-t{background:var(--st);border:1px solid var(--stb);}
-  .ld-s{background:var(--ss);border:1px solid var(--ssb);}
+  .ld{width:13px;height:12px;border-radius:2px;flex-shrink:0;}
+  .ld-f {background:var(--sf); border:1px solid var(--sfb);}
+  .ld-sv{background:var(--su); border:1px solid var(--sub);}
+  .ld-z1{background:var(--z1); border:1px solid var(--z1b);}
+  .ld-z2{background:var(--z2); border:1px solid var(--z2b);}
+  .ld-z3{background:var(--z3); border:1px solid var(--z3b);}
+  .ld-z4{background:var(--z4); border:1px solid var(--z4b);}
+  .ld-s {background:var(--ss); border:1px solid var(--ssb);}
+
   .hall-outer{overflow-x:auto;padding:1.5rem 1rem 1rem;display:flex;justify-content:center;}
   .hall-wrap{display:inline-flex;flex-direction:column;align-items:center;}
   .hall-rows{display:flex;align-items:flex-end;gap:8px;}
@@ -33,14 +52,24 @@
   .aisle{width:10px;flex-shrink:0;}
   .aisle-sm{width:5px;flex-shrink:0;}
   .stage{margin-top:4px;width:min(420px,70%);height:30px;background:linear-gradient(180deg,#3a2e10,#1e1808);border:1px solid var(--gold-dim);border-radius:0 0 6px 6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.75rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;}
+
+  /* базовое кресло */
   .seat{width:16px;height:14px;border-radius:3px 3px 2px 2px;border:1px solid var(--sfb);background:var(--sf);cursor:pointer;flex-shrink:0;transition:transform .1s,background .12s,border-color .12s,box-shadow .12s;position:relative;}
-  .seat::after{content:'';position:absolute;top:0;left:10%;right:10%;height:3px;background:rgba(255,255,255,.06);border-radius:2px 2px 0 0;}
-  .seat:hover{background:var(--sh);border-color:var(--gold-dim);transform:scaleY(1.1);z-index:2;box-shadow:0 0 5px rgba(201,168,76,.2);}
+  .seat::after{content:'';position:absolute;top:0;left:10%;right:10%;height:3px;background:rgba(255,255,255,.07);border-radius:2px 2px 0 0;}
+  .seat:hover:not(.service):not(.taken):not(.used){background:var(--sh);border-color:var(--gold-dim);transform:scaleY(1.1);z-index:2;box-shadow:0 0 5px rgba(201,168,76,.2);}
+  .seat.selected{background:var(--ss)!important;border-color:var(--ssb)!important;box-shadow:0 0 8px rgba(201,168,76,.5)!important;transform:scaleY(1.15);z-index:3;}
+
+  /* зоны */
+  .seat.z1{background:var(--z1);border-color:var(--z1b);}
+  .seat.z2{background:var(--z2);border-color:var(--z2b);}
+  .seat.z3{background:var(--z3);border-color:var(--z3b);}
+  .seat.z4{background:var(--z4);border-color:var(--z4b);}
+
+  /* служебные / занятые */
+  .seat.service{background:var(--su);border-color:var(--sub);cursor:not-allowed;opacity:.5;}
   .seat.taken{background:var(--st);border-color:var(--stb);cursor:not-allowed;}
-  .seat.taken:hover{transform:none;box-shadow:none;}
-  .seat.used{background:var(--su);border-color:var(--sub);cursor:not-allowed;opacity:.55;}
-  .seat.used:hover{transform:none;box-shadow:none;}
-  .seat.selected{background:var(--ss);border-color:var(--ssb);box-shadow:0 0 8px rgba(201,168,76,.5);transform:scaleY(1.15);z-index:3;}
+  .seat.used{background:#1a1a1a;border-color:#2a2a2a;cursor:not-allowed;opacity:.45;}
+
   .info-bar{position:sticky;bottom:0;background:var(--surface);border-top:1px solid #2a2a3a;padding:.9rem 1.5rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;z-index:100;box-shadow:0 -6px 28px rgba(0,0,0,.5);}
   .sel-info{flex:1;font-size:.88rem;color:var(--muted);}
   .sel-info strong{color:var(--gold);font-style:italic;}
@@ -49,8 +78,9 @@
   .btn-book:disabled{opacity:.3;cursor:not-allowed;}
   .btn-secondary{background:transparent;color:var(--muted);border:1px solid #2e2e45;border-radius:5px;padding:.65rem 1.1rem;font-family:'Playfair Display',serif;font-size:.88rem;cursor:pointer;transition:border-color .2s,color .2s;white-space:nowrap;}
   .btn-secondary:hover{border-color:var(--gold-dim);color:var(--gold);}
-  .btn-danger{background:transparent;color:#c0392b;border:1px solid #5a1010;border-radius:5px;padding:.65rem 1.1rem;font-family:'Playfair Display',serif;font-size:.88rem;cursor:pointer;transition:border-color .2s,background .2s;white-space:nowrap;}
+  .btn-danger{background:transparent;color:#c0392b;border:1px solid #5a1010;border-radius:5px;padding:.65rem 1.1rem;font-family:'Playfair Display',serif;font-size:.88rem;cursor:pointer;white-space:nowrap;}
   .btn-danger:hover{border-color:#c0392b;background:rgba(192,57,43,.08);}
+
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
   .modal-bg.open{display:flex;}
   .modal{background:var(--surface);border:1px solid #2e2e45;border-radius:10px;padding:1.8rem;width:100%;max-width:390px;position:relative;box-shadow:0 0 60px rgba(0,0,0,.6);animation:slideUp .22s ease;}
@@ -60,14 +90,12 @@
   .seat-summary strong{color:var(--text);}
   .modal label{display:block;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;margin-top:.9rem;}
   .modal label:first-of-type{margin-top:0;}
-  .modal input[type=text], .modal input[type=email]{width:100%;background:#0d0d14;border:1px solid #2e2e45;border-radius:5px;padding:.6rem .85rem;color:var(--text);font-family:'Spectral',serif;font-size:.95rem;outline:none;transition:border-color .2s;}
+  .modal input{width:100%;background:#0d0d14;border:1px solid #2e2e45;border-radius:5px;padding:.6rem .85rem;color:var(--text);font-family:'Spectral',serif;font-size:.95rem;outline:none;transition:border-color .2s;}
   .modal input:focus{border-color:var(--gold-dim);}
   .input-hint{font-size:.72rem;color:var(--muted);margin-top:.3rem;font-style:italic;}
   .modal-actions{display:flex;gap:.7rem;margin-top:1.4rem;}
   .btn-cancel{flex:1;padding:.62rem;background:transparent;border:1px solid #2e2e45;border-radius:5px;color:var(--muted);font-family:'Spectral',serif;font-size:.9rem;cursor:pointer;}
-  .btn-cancel:hover{border-color:#4a4a6e;}
   .btn-confirm{flex:2;padding:.62rem;background:linear-gradient(135deg,#c9a84c,#8a6f30);border:none;border-radius:5px;color:#0d0d14;font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;cursor:pointer;}
-  .btn-confirm:hover{opacity:.85;}
   .btn-confirm:disabled{opacity:.4;cursor:not-allowed;}
   .btn-confirm-red{flex:2;padding:.62rem;background:linear-gradient(135deg,#8b2020,#5a1010);border:none;border-radius:5px;color:#fff;font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;cursor:pointer;}
   .btn-confirm-red:disabled{opacity:.4;cursor:not-allowed;}
@@ -94,8 +122,11 @@
 </header>
 
 <div class="legend">
-  <span class="legend-item"><span class="ld ld-f"></span>Свободно</span>
-  <span class="legend-item"><span class="ld ld-t"></span>Занято</span>
+  <span class="legend-item"><span class="ld ld-z1"></span>Ряды 3–5</span>
+  <span class="legend-item"><span class="ld ld-z2"></span>Ряды 6–12 (центр)</span>
+  <span class="legend-item"><span class="ld ld-z3"></span>Ряды 6–14 (бока)</span>
+  <span class="legend-item"><span class="ld ld-z4"></span>Ряды 15–20</span>
+  <span class="legend-item"><span class="ld ld-sv"></span>Занято</span>
   <span class="legend-item"><span class="ld ld-s"></span>Выбрано</span>
 </div>
 
@@ -191,14 +222,27 @@
 
 <script>
 const ROWS = [
-  {r:1,seats:22,a:11,sm:false},{r:2,seats:22,a:11,sm:false},{r:3,seats:22,a:11,sm:false},
-  {r:4,seats:22,a:11,sm:false},{r:5,seats:22,a:11,sm:false},{r:6,seats:24,a:12,sm:false},
-  {r:7,seats:24,a:12,sm:false},{r:8,seats:24,a:12,sm:false},{r:9,seats:24,a:12,sm:false},
-  {r:10,seats:24,a:12,sm:false},{r:11,seats:24,a:12,sm:false},{r:12,seats:24,a:12,sm:false},
-  {r:13,seats:24,a:12,sm:false},{r:14,seats:24,a:12,sm:false},{r:15,seats:24,a:12,sm:true},
-  {r:16,seats:24,a:12,sm:true},{r:17,seats:24,a:12,sm:true},{r:18,seats:24,a:12,sm:true},
-  {r:19,seats:24,a:12,sm:true},{r:20,seats:22,a:11,sm:false},
+  {r:1, seats:22,a:11,sm:false},{r:2, seats:22,a:11,sm:false},
+  {r:3, seats:22,a:11,sm:false},{r:4, seats:22,a:11,sm:false},{r:5, seats:22,a:11,sm:false},
+  {r:6, seats:24,a:12,sm:false},{r:7, seats:24,a:12,sm:false},{r:8, seats:24,a:12,sm:false},
+  {r:9, seats:24,a:12,sm:false},{r:10,seats:24,a:12,sm:false},{r:11,seats:24,a:12,sm:false},{r:12,seats:24,a:12,sm:false},
+  {r:13,seats:24,a:12,sm:false},{r:14,seats:24,a:12,sm:false},
+  {r:15,seats:24,a:12,sm:true},{r:16,seats:24,a:12,sm:true},{r:17,seats:24,a:12,sm:true},
+  {r:18,seats:24,a:12,sm:true},{r:19,seats:24,a:12,sm:true},{r:20,seats:22,a:11,sm:false},
 ];
+
+// Определить зону кресла
+function getZone(row, seat, totalSeats) {
+  if (row <= 2)  return 'service'; // служебные
+  if (row <= 5)  return 'z1';      // фиолетовый
+  if (row <= 12) {
+    // центр: места 7–18
+    if (seat >= 7 && seat <= 18) return 'z2';
+    return 'z3'; // бока
+  }
+  if (row <= 14) return 'z3';      // синий (как бока 6–12)
+  return 'z4';                     // янтарный 15–20
+}
 
 let selectedSeat = null;
 let bookedMap = {};
@@ -227,7 +271,10 @@ function buildLozha(section, label) {
     const rowEl = document.createElement('div');
     rowEl.className = 'lozha-row';
     for (let s=1; s<=4; s++) {
-      rowEl.appendChild(makeSeat(section, row, (row-1)*4+s));
+      const el = document.createElement('div');
+      el.className = 'seat service';
+      el.title = `${label} — служебное место`;
+      rowEl.appendChild(el);
     }
     col.appendChild(rowEl);
   }
@@ -241,8 +288,12 @@ function buildRow(cfg) {
   lbl.className='rl'; lbl.textContent=cfg.r;
   rowEl.appendChild(lbl);
   for (let s=1; s<=cfg.seats; s++) {
-    if (s===cfg.a+1) { const ai=document.createElement('div'); ai.className=cfg.sm?'aisle-sm':'aisle'; rowEl.appendChild(ai); }
-    rowEl.appendChild(makeSeat('Партер',cfg.r,s));
+    if (s===cfg.a+1) {
+      const ai=document.createElement('div');
+      ai.className=cfg.sm?'aisle-sm':'aisle';
+      rowEl.appendChild(ai);
+    }
+    rowEl.appendChild(makeSeat('Партер', cfg.r, s, cfg.seats));
   }
   const lblR=document.createElement('span');
   lblR.className='rl-r'; lblR.textContent=cfg.r;
@@ -250,19 +301,26 @@ function buildRow(cfg) {
   return rowEl;
 }
 
-function makeSeat(section, row, seat) {
+function makeSeat(section, row, seat, totalSeats) {
   const seatId = `${section}_r${row}_s${seat}`;
+  const zone = getZone(row, seat, totalSeats);
   const el = document.createElement('div');
-  el.className = 'seat';
-  el.dataset.id = seatId;
+  el.className = 'seat ' + zone;
+  el.dataset.id      = seatId;
   el.dataset.section = section.replace(/_/g,' ');
-  el.dataset.row = row;
-  el.dataset.seat = seat;
+  el.dataset.row     = row;
+  el.dataset.seat    = seat;
   el.title = `${section.replace(/_/g,' ')}, ряд ${row}, место ${seat}`;
+
+  if (zone === 'service') {
+    el.title = 'Служебное место';
+    return el;
+  }
+
   if (bookedMap[seatId]) {
     const b = bookedMap[seatId];
     el.classList.add(b.used ? 'used' : 'taken');
-    el.title += b.used ? ' — использован' : ` — занято`;
+    el.title += b.used ? ' — использован' : ' — занято';
   } else {
     el.addEventListener('click', () => selectSeat(el));
   }
@@ -300,8 +358,7 @@ async function confirmBooking() {
   const name = document.getElementById('guestName').value.trim();
   if (!name) { document.getElementById('guestName').focus(); return; }
   const btn = document.getElementById('btnConfirm');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Создание…';
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Создание…';
   try {
     const resp = await fetch('/api/book', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -312,17 +369,15 @@ async function confirmBooking() {
     closeModal('modalBook');
     document.getElementById('qrImg').src = 'data:image/png;base64,'+data.qr_base64;
     document.getElementById('qrInfo').innerHTML = `<strong>${data.guest_name}</strong><br>${data.section} · ряд ${data.row_num} · место ${data.seat_num}<br><small style="font-size:.7rem;opacity:.5;">ID: ${data.ticket_id}</small>`;
-    const emailNote = document.getElementById('emailSentNote');
-    emailNote.style.display = data.email_sent ? 'block' : 'none';
+    document.getElementById('emailSentNote').style.display = data.email_sent ? 'block' : 'none';
     document.getElementById('modalQR').classList.add('open');
   } catch(e) { alert('Ошибка сети. Проверьте соединение и попробуйте ещё раз.'); }
   finally { btn.disabled=false; btn.textContent='Получить QR'; }
 }
 
-// ── Возврат билета ───────────────────────────────────────────────────────
 function openReturnModal() {
-  document.getElementById('returnId').value = '';
-  document.getElementById('returnMsg').textContent = '';
+  document.getElementById('returnId').value='';
+  document.getElementById('returnMsg').textContent='';
   document.getElementById('modalReturn').classList.add('open');
   setTimeout(()=>document.getElementById('returnId').focus(),100);
 }
@@ -332,25 +387,21 @@ async function confirmReturn() {
   const msg = document.getElementById('returnMsg');
   if (!id) { document.getElementById('returnId').focus(); return; }
   const btn = document.getElementById('btnReturnConfirm');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Обработка…';
-  msg.textContent = '';
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Обработка…'; msg.textContent='';
   try {
     const resp = await fetch('/api/cancel/'+encodeURIComponent(id), {method:'DELETE'});
     const data = await resp.json();
     if (resp.ok) {
       msg.style.color='#2ecc71'; msg.textContent='✅ '+data.message;
-      loadSeats();
-      setTimeout(()=>closeModal('modalReturn'), 2000);
+      loadSeats(); setTimeout(()=>closeModal('modalReturn'),2000);
     } else { msg.style.color='#e74c3c'; msg.textContent='❌ '+data.detail; }
   } catch(e) { msg.style.color='#e74c3c'; msg.textContent='❌ Ошибка сети.'; }
   finally { btn.disabled=false; btn.textContent='Вернуть билет'; }
 }
 
-// ── Восстановление QR ────────────────────────────────────────────────────
 function openRestoreModal() {
-  document.getElementById('restoreEmail').value = '';
-  document.getElementById('restoreMsg').textContent = '';
+  document.getElementById('restoreEmail').value='';
+  document.getElementById('restoreMsg').textContent='';
   document.getElementById('modalRestore').classList.add('open');
   setTimeout(()=>document.getElementById('restoreEmail').focus(),100);
 }
@@ -388,7 +439,6 @@ document.getElementById('restoreEmail').addEventListener('keydown', e=>{ if(e.ke
 async function loadSeats() {
   try { const r=await fetch('/api/seats'); const d=await r.json(); buildHall(d.booked); } catch(e){ buildHall([]); }
 }
-
 document.addEventListener('DOMContentLoaded', ()=>{ loadSeats(); setInterval(loadSeats,30000); });
 </script>
 </body>
