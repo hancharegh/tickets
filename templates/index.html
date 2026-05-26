@@ -39,9 +39,9 @@
   .ld-z4{background:var(--z4); border:1px solid var(--z4b);}
   .ld-s {background:var(--ss); border:1px solid var(--ssb);}
 
-  .hall-outer{overflow-x:auto;padding:1.5rem 1rem 1rem;display:flex;justify-content:center;}
-  .hall-wrap{display:inline-flex;flex-direction:column;align-items:center;}
-  .hall-rows{display:flex;align-items:flex-end;gap:8px;}
+  .hall-outer{overflow-x:auto;padding:1.5rem 2rem 1rem;display:flex;justify-content:center;width:100%;}
+  .hall-wrap{display:flex;flex-direction:column;align-items:center;width:100%;}
+  .hall-rows{display:flex;align-items:flex-end;gap:clamp(6px,2vw,24px);justify-content:center;width:100%;}
   .lozha{display:flex;flex-direction:column;gap:2px;align-items:center;}
   .lozha-title{font-size:.6rem;color:var(--gold-dim);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;white-space:nowrap;}
   .lozha-row{display:flex;gap:2px;}
@@ -49,12 +49,12 @@
   .p-row{display:flex;align-items:center;gap:1px;}
   .rl{font-size:.55rem;color:var(--muted);width:30px;text-align:right;padding-right:4px;flex-shrink:0;font-variant-numeric:tabular-nums;}
   .rl-r{font-size:.55rem;color:var(--muted);width:30px;text-align:left;padding-left:4px;flex-shrink:0;}
-  .aisle{width:10px;flex-shrink:0;}
+  .aisle{width:clamp(8px,1vw,18px);flex-shrink:0;}
   .aisle-sm{width:5px;flex-shrink:0;}
-  .stage{margin-top:4px;width:min(420px,70%);height:30px;background:linear-gradient(180deg,#3a2e10,#1e1808);border:1px solid var(--gold-dim);border-radius:0 0 6px 6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.75rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;}
+  .stage{margin-top:4px;width:min(700px,80%);height:30px;background:linear-gradient(180deg,#3a2e10,#1e1808);border:1px solid var(--gold-dim);border-radius:0 0 6px 6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.75rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;}
 
   /* базовое кресло */
-  .seat{width:16px;height:14px;border-radius:3px 3px 2px 2px;border:1px solid var(--sfb);background:var(--sf);cursor:pointer;flex-shrink:0;transition:transform .1s,background .12s,border-color .12s,box-shadow .12s;position:relative;}
+  .seat{width:clamp(14px,1.2vw,22px);height:clamp(12px,1.05vw,19px);border-radius:3px 3px 2px 2px;border:1px solid var(--sfb);background:var(--sf);cursor:pointer;flex-shrink:0;transition:transform .1s,background .12s,border-color .12s,box-shadow .12s;position:relative;}
   .seat::after{content:'';position:absolute;top:0;left:10%;right:10%;height:3px;background:rgba(255,255,255,.07);border-radius:2px 2px 0 0;}
   .seat:hover:not(.service):not(.taken):not(.used){background:var(--sh);border-color:var(--gold-dim);transform:scaleY(1.1);z-index:2;box-shadow:0 0 5px rgba(201,168,76,.2);}
   .seat.selected{background:var(--ss)!important;border-color:var(--ssb)!important;box-shadow:0 0 8px rgba(201,168,76,.5)!important;transform:scaleY(1.15);z-index:3;}
