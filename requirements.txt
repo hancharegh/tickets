@@ -4,4 +4,4 @@ sqlalchemy==2.0.35
 qrcode[pil]==7.4.2
 pillow==10.4.0
 python-multipart==0.0.12
-psycopg[binary]==3.2.3
+psycopg2-binary==2.9.9
