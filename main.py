@@ -8,6 +8,7 @@ import base64
 import qrcode
 import smtplib
 import os
+import threading
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
@@ -25,9 +26,11 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./theater.db")
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-elif DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
-engine = create_engine(DATABASE_URL)
+
+engine = create_engine(
+    DATABASE_URL,
+    **({} if DATABASE_URL.startswith("postgresql") else {"connect_args": {"check_same_thread": False}})
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -107,7 +110,7 @@ def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int
         img_part.add_header("Content-Disposition", "inline", filename="ticket_qr.png")
         msg.attach(img_part)
 
-        with smtplib.SMTP_SSL("smtp.yandex.ru", 465) as server:
+        with smtplib.SMTP_SSL("smtp.yandex.ru", 465, timeout=10) as server:
             server.login(SMTP_USER, SMTP_PASS)
             server.sendmail(SMTP_USER, to_email, msg.as_string())
         return True
@@ -180,12 +183,11 @@ async def book_seat(req: BookingRequest):
         qr_bytes = generate_qr_bytes(ticket.id)
         qr_b64   = base64.b64encode(qr_bytes).decode()
 
-        email_sent = False
+        email_sent = bool(ticket.email)
         if ticket.email:
-            email_sent = send_ticket_email(
-                ticket.email, ticket.guest_name, ticket.section,
-                ticket.row_num, ticket.seat_num, ticket.id, qr_bytes
-            )
+            t_args = (ticket.email, ticket.guest_name, ticket.section,
+                      ticket.row_num, ticket.seat_num, ticket.id, qr_bytes)
+            threading.Thread(target=send_ticket_email, args=t_args, daemon=True).start()
 
         return {
             "ticket_id":  ticket.id,
