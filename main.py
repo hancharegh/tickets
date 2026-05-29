@@ -6,12 +6,9 @@ import io
 import uuid
 import base64
 import qrcode
-import smtplib
 import os
 import threading
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
+import resend
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException
@@ -55,8 +52,8 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Theater Booking", version="3.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-SMTP_USER = os.environ.get("SMTP_USER", "")
-SMTP_PASS = os.environ.get("SMTP_PASS", "")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+resend.api_key = RESEND_API_KEY
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -73,14 +70,11 @@ def generate_qr_base64(data: str) -> str:
     return base64.b64encode(generate_qr_bytes(data)).decode()
 
 def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int, seat_num: int, ticket_id: str, qr_bytes: bytes):
-    if not SMTP_USER or not SMTP_PASS:
+    if not RESEND_API_KEY:
+        print("Email error: RESEND_API_KEY not set")
         return False
     try:
-        msg = MIMEMultipart("related")
-        msg["Subject"] = "Ваш билет"
-        msg["From"]    = SMTP_USER
-        msg["To"]      = to_email
-
+        qr_b64 = base64.b64encode(qr_bytes).decode()
         html = f"""
         <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;background:#0d0d14;color:#e8e0d0;border-radius:12px;overflow:hidden;">
           <div style="background:linear-gradient(135deg,#1e1830,#13131f);padding:28px 32px 20px;text-align:center;border-bottom:1px solid #2a2a3a;">
@@ -89,7 +83,7 @@ def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int
           <div style="padding:28px 32px;text-align:center;">
             <p style="color:#7a7060;margin:0 0 6px;">Здравствуйте, <strong style="color:#e8e0d0;">{guest_name}</strong>!</p>
             <p style="color:#7a7060;margin:0 0 24px;font-size:.9rem;">Ваше место успешно забронировано.</p>
-            <img src="cid:qrcode" style="width:200px;height:200px;border-radius:10px;border:3px solid #8a6f30;display:block;margin:0 auto 20px;">
+            <img src="data:image/png;base64,{qr_b64}" style="width:200px;height:200px;border-radius:10px;border:3px solid #8a6f30;display:block;margin:0 auto 20px;">
             <div style="background:#13131f;border:1px solid #2a2a3a;border-radius:8px;padding:16px 20px;text-align:left;margin-bottom:20px;">
               <table style="width:100%;border-collapse:collapse;font-size:.9rem;">
                 <tr><td style="color:#7a7060;padding:4px 0;">Секция</td><td style="color:#e8e0d0;text-align:right;"><strong>{section}</strong></td></tr>
@@ -102,16 +96,13 @@ def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int
           </div>
         </div>
         """
-
-        msg.attach(MIMEText(html, "html", "utf-8"))
-        img_part = MIMEImage(qr_bytes, _subtype="png")
-        img_part.add_header("Content-ID", "<qrcode>")
-        img_part.add_header("Content-Disposition", "inline", filename="ticket_qr.png")
-        msg.attach(img_part)
-
-        with smtplib.SMTP_SSL("smtp.yandex.ru", 465, timeout=10) as server:
-            server.login(SMTP_USER, SMTP_PASS)
-            server.sendmail(SMTP_USER, to_email, msg.as_string())
+        resend.Emails.send({
+            "from": "Театр <onboarding@resend.dev>",
+            "to": to_email,
+            "subject": "Ваш билет",
+            "html": html,
+        })
+        print(f"Email sent to {to_email}")
         return True
     except Exception as e:
         print(f"Email error: {e}")
@@ -182,7 +173,6 @@ async def book_seat(req: BookingRequest):
         qr_bytes = generate_qr_bytes(ticket.id)
         qr_b64   = base64.b64encode(qr_bytes).decode()
 
-        email_sent = bool(ticket.email)
         if ticket.email:
             t_args = (ticket.email, ticket.guest_name, ticket.section,
                       ticket.row_num, ticket.seat_num, ticket.id, qr_bytes)
@@ -196,7 +186,7 @@ async def book_seat(req: BookingRequest):
             "section":    ticket.section,
             "guest_name": ticket.guest_name,
             "email":      ticket.email or "",
-            "email_sent": email_sent,
+            "email_sent": bool(ticket.email),
             "qr_base64":  qr_b64,
         }
     finally:
