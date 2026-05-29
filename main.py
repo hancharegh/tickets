@@ -110,8 +110,7 @@ def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int
         img_part.add_header("Content-Disposition", "inline", filename="ticket_qr.png")
         msg.attach(img_part)
 
-        with smtplib.SMTP("smtp-relay.brevo.com", 587, timeout=15) as server:
-            server.starttls()
+        with smtplib.SMTP_SSL("smtp-relay.brevo.com", 465, timeout=15) as server:
             server.login(BREVO_USER, BREVO_PASS)
             server.sendmail(BREVO_USER, to_email, msg.as_string())
         print(f"Email sent to {to_email}")
