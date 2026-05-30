@@ -8,10 +8,7 @@ import base64
 import qrcode
 import os
 import threading
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
+import requests
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException
@@ -55,8 +52,8 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Theater Booking", version="3.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
 BREVO_USER = os.environ.get("BREVO_USER", "")
-BREVO_PASS = os.environ.get("BREVO_PASS", "")
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -110,7 +107,8 @@ def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int
         img_part.add_header("Content-Disposition", "inline", filename="ticket_qr.png")
         msg.attach(img_part)
 
-        with smtplib.SMTP_SSL("smtp-relay.brevo.com", 465, timeout=15) as server:
+        with smtplib.SMTP("smtp-relay.brevo.com", 587, timeout=15) as server:
+            server.starttls()
             server.login(BREVO_USER, BREVO_PASS)
             server.sendmail(BREVO_USER, to_email, msg.as_string())
         print(f"Email sent to {to_email}")
