@@ -53,7 +53,7 @@ app = FastAPI(title="Theater Booking", version="3.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
-BREVO_USER = os.environ.get("BREVO_USER", "")
+BREVO_USER    = os.environ.get("BREVO_USER", "")
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -74,11 +74,7 @@ def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int
         print("Email error: BREVO_API_KEY not set")
         return False
     try:
-        msg = MIMEMultipart("related")
-        msg["Subject"] = "Ваш билет"
-        msg["From"]    = f"Театр <{BREVO_USER}>"
-        msg["To"]      = to_email
-
+        qr_b64 = base64.b64encode(qr_bytes).decode()
         html = f"""
         <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;background:#0d0d14;color:#e8e0d0;border-radius:12px;overflow:hidden;">
           <div style="background:linear-gradient(135deg,#1e1830,#13131f);padding:28px 32px 20px;text-align:center;border-bottom:1px solid #2a2a3a;">
@@ -87,7 +83,7 @@ def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int
           <div style="padding:28px 32px;text-align:center;">
             <p style="color:#7a7060;margin:0 0 6px;">Здравствуйте, <strong style="color:#e8e0d0;">{guest_name}</strong>!</p>
             <p style="color:#7a7060;margin:0 0 24px;font-size:.9rem;">Ваше место успешно забронировано.</p>
-            <img src="cid:qrcode" style="width:200px;height:200px;border-radius:10px;border:3px solid #8a6f30;display:block;margin:0 auto 20px;">
+            <img src="data:image/png;base64,{qr_b64}" width="200" height="200" style="border-radius:10px;border:3px solid #8a6f30;display:block;margin:0 auto 20px;">
             <div style="background:#13131f;border:1px solid #2a2a3a;border-radius:8px;padding:16px 20px;text-align:left;margin-bottom:20px;">
               <table style="width:100%;border-collapse:collapse;font-size:.9rem;">
                 <tr><td style="color:#7a7060;padding:4px 0;">Секция</td><td style="color:#e8e0d0;text-align:right;"><strong>{section}</strong></td></tr>
@@ -101,18 +97,33 @@ def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int
         </div>
         """
 
-        msg.attach(MIMEText(html, "html", "utf-8"))
-        img_part = MIMEImage(qr_bytes, _subtype="png")
-        img_part.add_header("Content-ID", "<qrcode>")
-        img_part.add_header("Content-Disposition", "inline", filename="ticket_qr.png")
-        msg.attach(img_part)
+        payload = {
+            "sender": {"name": "Театр", "email": BREVO_USER or "noreply@example.com"},
+            "to": [{"email": to_email}],
+            "subject": "Ваш билет",
+            "htmlContent": html,
+            "attachment": [{
+                "content": qr_b64,
+                "name": "ticket_qr.png"
+            }]
+        }
 
-        with smtplib.SMTP("smtp-relay.brevo.com", 587, timeout=15) as server:
-            server.starttls()
-            server.login(BREVO_USER, BREVO_PASS)
-            server.sendmail(BREVO_USER, to_email, msg.as_string())
-        print(f"Email sent to {to_email}")
-        return True
+        resp = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "accept": "application/json",
+                "api-key": BREVO_API_KEY,
+                "content-type": "application/json",
+            },
+            json=payload,
+            timeout=15
+        )
+        if resp.status_code == 201:
+            print(f"Email sent to {to_email}")
+            return True
+        else:
+            print(f"Email error: {resp.status_code} {resp.text}")
+            return False
     except Exception as e:
         print(f"Email error: {e}")
         return False
