@@ -70,8 +70,8 @@ def generate_qr_base64(data: str) -> str:
     return base64.b64encode(generate_qr_bytes(data)).decode()
 
 def send_ticket_email(to_email: str, guest_name: str, section: str, row_num: int, seat_num: int, ticket_id: str, qr_bytes: bytes):
-    if not BREVO_USER or not BREVO_PASS:
-        print("Email error: BREVO_USER or BREVO_PASS not set")
+    if not BREVO_API_KEY:
+        print("Email error: BREVO_API_KEY not set")
         return False
     try:
         msg = MIMEMultipart("related")
